@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="380" height="380" viewBox="0 0 380 380">
+  <!-- Osole chat doodle pattern · tech / software dev · subtle indigo-slate -->
+  <defs>
+    <g id="gear" fill="none" stroke="#cdd6ec" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <circle r="6"/><circle r="2"/>
+      <path d="M0 -10v3M0 7v3M-10 0h3M7 0h3M-7.1 -7.1l2.1 2.1M5 5l2.1 2.1M7.1 -7.1l-2.1 2.1M-5 5l-2.1 2.1"/>
+    </g>
+    <g id="terminal" fill="none" stroke="#cdd6ec" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="-13" y="-10" width="26" height="20" rx="3"/><path d="M-7 -3l4 3l-4 3M0 5h7"/>
+    </g>
+    <g id="cloud" fill="none" stroke="#cdd6ec" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M-11 6a5 5 0 0 1 .5 -10a7 7 0 0 1 13 1a4.5 4.5 0 0 1 -.5 9z"/>
+    </g>
+    <g id="rocket" fill="none" stroke="#cdd6ec" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M0 -13c4.5 3.5 5.5 9 4.5 14.5l-4.5 3.5l-4.5 -3.5c-1 -5.5 0 -11 4.5 -14.5z"/>
+      <path d="M-4.5 9l-4 6M4.5 9l4 6"/><circle cy="-3" r="2"/>
+    </g>
+    <g id="db" fill="none" stroke="#cdd6ec" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <ellipse cy="-7" rx="9" ry="3.5"/><path d="M-9 -7v14a9 3.5 0 0 0 18 0v-14M-9 0a9 3.5 0 0 0 18 0"/>
+    </g>
+    <g id="bug" fill="none" stroke="#cdd6ec" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <ellipse rx="5.5" ry="7.5"/>
+      <path d="M-5.5 -3l-5 -2M-6 1h-6M-5.5 5l-5 2M5.5 -3l5 -2M6 1h6M5.5 5l5 2M-3 -7l-2.5 -4M3 -7l2.5 -4"/>
+    </g>
+    <g id="wifi" fill="none" stroke="#cdd6ec" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M-11 -3a15 15 0 0 1 22 0M-6.5 2.5a8.5 8.5 0 0 1 13 0M-2 8a3 3 0 0 1 4 0"/><circle cy="10" r="1.2"/>
+    </g>
+    <g id="branch" fill="none" stroke="#cdd6ec" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="-7" cy="-8" r="2.6"/><circle cx="-7" cy="8" r="2.6"/><circle cx="8" cy="-8" r="2.6"/>
+      <path d="M-7 -5.4v10.8M-7 -2c0 6 15 1 15 7"/>
+    </g>
+  </defs>
+
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="600" font-size="15" fill="#cdd6ec">
+    <text x="26" y="60" transform="rotate(-7 38 55)">&lt;/&gt;</text>
+    <text x="232" y="58" transform="rotate(8 248 52)">{ }</text>
+    <text x="48" y="128" transform="rotate(-4 60 122)">=&gt;</text>
+    <text x="288" y="132" transform="rotate(6 305 126)" font-size="13">0x1F</text>
+    <text x="118" y="212" transform="rotate(5 130 206)">( )</text>
+    <text x="300" y="214" transform="rotate(-6 318 208)" font-size="13">npm</text>
+    <text x="44" y="296" transform="rotate(8 56 290)" font-size="13">git</text>
+    <text x="226" y="294" transform="rotate(-5 240 288)">&amp;&amp;</text>
+    <text x="86" y="350" transform="rotate(0 96 345)">//</text>
+    <text x="186" y="356" transform="rotate(6 200 350)">&lt;/&gt;</text>
+    <text x="332" y="352" transform="rotate(-7 345 346)" font-size="13">fn()</text>
+  </g>
+
+  <use href="#gear" x="150" y="48"/>
+  <use href="#terminal" x="338" y="58"/>
+  <use href="#cloud" x="178" y="124"/>
+  <use href="#branch" x="220" y="126"/>
+  <use href="#rocket" x="46" y="208"/>
+  <use href="#db" x="218" y="206"/>
+  <use href="#wifi" x="120" y="290"/>
+  <use href="#bug" x="320" y="290"/>
+  <use href="#gear" x="285" y="350"/>
+  <use href="#cloud" x="350" y="206"/>
+</svg>

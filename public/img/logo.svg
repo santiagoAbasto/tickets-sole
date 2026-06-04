@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="110" height="110" viewBox="0 0 110 110" role="img" aria-label="Osole">
+  <defs>
+    <linearGradient id="osoleGreen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#B2D845"/>
+      <stop offset="1" stop-color="#92C019"/>
+    </linearGradient>
+  </defs>
+  <g fill="url(#osoleGreen)">
+    <rect x="24" y="2" width="18" height="18" rx="3.5"/>
+    <rect x="46" y="2" width="18" height="18" rx="3.5"/>
+    <rect x="68" y="2" width="18" height="18" rx="3.5"/>
+    <rect x="2" y="24" width="18" height="18" rx="3.5"/>
+    <rect x="2" y="46" width="18" height="18" rx="3.5"/>
+    <rect x="2" y="68" width="18" height="18" rx="3.5"/>
+    <rect x="90" y="24" width="18" height="18" rx="3.5"/>
+    <rect x="90" y="46" width="18" height="18" rx="3.5"/>
+    <rect x="90" y="68" width="18" height="18" rx="3.5"/>
+    <rect x="24" y="90" width="18" height="18" rx="3.5"/>
+    <rect x="46" y="90" width="18" height="18" rx="3.5"/>
+    <rect x="68" y="90" width="18" height="18" rx="3.5"/>
+  </g>
+</svg>
