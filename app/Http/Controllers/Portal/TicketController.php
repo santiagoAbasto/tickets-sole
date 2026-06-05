@@ -89,7 +89,7 @@ class TicketController extends Controller
             $ticket = new Ticket($data);
             $ticket->code = app(TicketCodeGeneratorService::class)->generate();
             $ticket->status_id = TicketStatus::defaultId();
-            $ticket->assigned_to = null;
+            $ticket->assigned_to = \App\Models\SiteSetting::defaultAssigneeId();
             $ticket->created_by = $request->user()->id;
             $ticket->due_at = now()->addHours($priority->resolution_hours);
             $ticket->last_activity_at = now();

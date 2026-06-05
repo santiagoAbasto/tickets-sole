@@ -10,6 +10,7 @@ use App\Http\Requests\StoreTicketRequest;
 use App\Http\Requests\UpdateTicketRequest;
 use App\Models\Customer;
 use App\Models\Department;
+use App\Models\SiteSetting;
 use App\Models\Ticket;
 use App\Models\TicketCategory;
 use App\Models\TicketPriority;
@@ -102,6 +103,11 @@ class TicketController extends Controller
             $ticket->code = app(TicketCodeGeneratorService::class)->generate();
             $ticket->status_id = $statusId;
             $ticket->created_by = $request->user()->id;
+            // Only Admin/Super Admin may pick the assignee; everyone else (and a blank
+            // choice) falls to the default assignee configured in "Asignación de tickets".
+            $ticket->assigned_to = ($request->user()->hasPermissionTo('tickets.assign') && filled($data['assigned_to'] ?? null))
+                ? (int) $data['assigned_to']
+                : SiteSetting::defaultAssigneeId();
             $ticket->due_at = now()->addHours($priority->resolution_hours);
             $ticket->last_activity_at = now();
             $ticket->save();

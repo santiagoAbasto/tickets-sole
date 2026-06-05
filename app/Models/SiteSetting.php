@@ -45,4 +45,25 @@ class SiteSetting extends Model
 
         Cache::forget(self::CACHE_KEY);
     }
+
+    /**
+     * The default assignee every new ticket falls to (Admin/Super Admin set this).
+     * Returns null if unset or the chosen user is no longer an active assignable agent.
+     */
+    public static function defaultAssigneeId(): ?int
+    {
+        $id = self::get('default_assignee_id');
+
+        if (! $id) {
+            return null;
+        }
+
+        $valid = User::query()
+            ->whereKey($id)
+            ->where('is_active', true)
+            ->where('is_agent', true)
+            ->exists();
+
+        return $valid ? (int) $id : null;
+    }
 }

@@ -69,6 +69,7 @@ class PublicTicketController extends Controller
             $ticket->code = app(TicketCodeGeneratorService::class)->generate();
             $ticket->status_id = TicketStatus::defaultId();
             $ticket->created_by = null; // anonymous public submission
+            $ticket->assigned_to = \App\Models\SiteSetting::defaultAssigneeId();
             $ticket->due_at = now()->addHours($priority->resolution_hours);
             $ticket->last_activity_at = now();
             $ticket->save();

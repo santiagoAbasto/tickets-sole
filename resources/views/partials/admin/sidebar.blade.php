@@ -53,6 +53,10 @@
 
         @can('settings.manage')
             <p class="px-3 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-wider text-slate-600">Configuración</p>
+            @php $on = request()->routeIs('admin.assignment-settings.*'); @endphp
+            <a href="{{ route('admin.assignment-settings.edit') }}" class="{{ $linkBase }} {{ $on ? $active : $idle }}">
+                <i data-lucide="user-check" class="h-5 w-5 shrink-0 {{ $on ? $iconActive : $iconIdle }}"></i> Asignación de tickets
+            </a>
             @php $on = request()->routeIs('admin.ticket-settings.departments.*'); @endphp
             <a href="{{ route('admin.ticket-settings.departments.index') }}" class="{{ $linkBase }} {{ $on ? $active : $idle }}">
                 <i data-lucide="building-2" class="h-5 w-5 shrink-0 {{ $on ? $iconActive : $iconIdle }}"></i> Departamentos

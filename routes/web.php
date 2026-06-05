@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AgentController;
+use App\Http\Controllers\Admin\AssignmentSettingController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\ProfileController;
@@ -100,6 +101,12 @@ Route::prefix('admin')->name('admin.')
 
         Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
+
+        // Default assignee (who every new ticket falls to) — Admin / Super Admin.
+        Route::middleware('permission:settings.manage')->group(function () {
+            Route::get('assignment', [AssignmentSettingController::class, 'edit'])->name('assignment-settings.edit');
+            Route::put('assignment', [AssignmentSettingController::class, 'update'])->name('assignment-settings.update');
+        });
 
         // Public-site configuration — Super Admin only.
         Route::middleware('role:Super Admin')->group(function () {

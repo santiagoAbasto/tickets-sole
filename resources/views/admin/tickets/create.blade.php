@@ -136,12 +136,20 @@
                         </select>
                         @error('priority_id')<p class="mt-1.5 text-sm text-rose-600">{{ $message }}</p>@enderror
                     </div>
-                    <div>
-                        <label class="label">Agente asignado</label>
-                        <select name="assigned_to" class="select"><option value="">Sin asignar</option>
-                            @foreach ($options['agents'] as $a)<option value="{{ $a['id'] }}" @selected(old('assigned_to') == $a['id'])>{{ $a['name'] }}</option>@endforeach
-                        </select>
-                    </div>
+                    @can('tickets.assign')
+                        <div>
+                            <label class="label">Agente asignado</label>
+                            <select name="assigned_to" class="select"><option value="">Predeterminado</option>
+                                @foreach ($options['agents'] as $a)<option value="{{ $a['id'] }}" @selected(old('assigned_to') == $a['id'])>{{ $a['name'] }}</option>@endforeach
+                            </select>
+                            <p class="mt-1.5 text-xs leading-5 text-slate-500">Si lo dejás en "Predeterminado", cae en el agente que figura en <span class="font-medium text-slate-600">Asignación de tickets</span>.</p>
+                        </div>
+                    @else
+                        <div class="flex items-start gap-2 rounded-xl bg-slate-50 p-3 text-xs leading-5 text-slate-500 ring-1 ring-inset ring-slate-200">
+                            <i data-lucide="info" class="mt-0.5 h-4 w-4 shrink-0 text-slate-400"></i>
+                            <span>El ticket se asigna automáticamente al <span class="font-medium text-slate-600">agente predeterminado</span>. Si hace falta, ese agente puede pedir delegarlo.</span>
+                        </div>
+                    @endcan
                 </x-card>
                 <x-button type="submit" class="w-full">Crear ticket</x-button>
             </div>

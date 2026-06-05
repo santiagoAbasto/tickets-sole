@@ -60,7 +60,7 @@ class RolePermissionSeeder extends Seeder
         // Agente — works the tickets assigned to them / their department.
         $agent = Role::findOrCreate('Agente', 'web');
         $agent->syncPermissions([
-            'tickets.viewAny', 'tickets.view',
+            'tickets.viewAny', 'tickets.view', 'tickets.create',
             'tickets.changeStatus', 'tickets.reply', 'tickets.note', 'tickets.attach',
         ]);
 
