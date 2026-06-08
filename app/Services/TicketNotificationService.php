@@ -28,7 +28,7 @@ class TicketNotificationService
         $primaryId = $this->primaryStaffId($ticket, $recipients);
 
         foreach ($recipients as $user) {
-            $user->notify(new TicketCreatedNotification($ticket, email: $user->id === $primaryId));
+            $this->safely(fn () => $user->notify(new TicketCreatedNotification($ticket, email: $user->id === $primaryId)));
         }
 
         // Telegram ping — deferred so a slow/unreachable bot never delays ticket
@@ -43,7 +43,7 @@ class TicketNotificationService
 
     public function ticketAssigned(Ticket $ticket, User $agent): void
     {
-        $agent->notify(new TicketAssignedNotification($ticket));
+        $this->safely(fn () => $agent->notify(new TicketAssignedNotification($ticket)));
     }
 
     /**
@@ -57,7 +57,7 @@ class TicketNotificationService
             $primaryId = $this->primaryStaffId($ticket, $recipients);
 
             foreach ($recipients as $user) {
-                $user->notify(new TicketRepliedNotification($ticket, $message, email: $user->id === $primaryId));
+                $this->safely(fn () => $user->notify(new TicketRepliedNotification($ticket, $message, email: $user->id === $primaryId)));
             }
 
             return;
@@ -77,7 +77,7 @@ class TicketNotificationService
         $recipients = $this->staffRecipients($ticket);
 
         if ($recipients->isNotEmpty()) {
-            Notification::send($recipients, new TicketSlaAlertNotification($ticket, $kind));
+            $this->safely(fn () => Notification::send($recipients, new TicketSlaAlertNotification($ticket, $kind)));
         }
     }
 
@@ -120,6 +120,22 @@ class TicketNotificationService
             return;
         }
 
-        Notification::route('mail', $email)->notify($notification);
+        $this->safely(fn () => Notification::route('mail', $email)->notify($notification));
+    }
+
+    /**
+     * Best-effort send: a transport failure (SMTP down, a rejected recipient,
+     * etc.) must never bubble up and break the originating request — creating a
+     * ticket or posting a reply has to succeed even when mail does not. In-app
+     * channels run before mail in via(), so the bell notification still lands.
+     * Failures are reported (logged) and swallowed.
+     */
+    private function safely(callable $send): void
+    {
+        try {
+            $send();
+        } catch (\Throwable $e) {
+            report($e);
+        }
     }
 }

@@ -81,6 +81,7 @@ Route::prefix('admin')->name('admin.')
             Route::post('{ticket}/messages', [TicketMessageController::class, 'store'])->name('messages.store');
             Route::post('{ticket}/notes', [TicketNoteController::class, 'store'])->name('notes.store');
             Route::post('{ticket}/assign', [TicketAssignmentController::class, 'store'])->name('assign');
+            Route::post('{ticket}/claim', [TicketController::class, 'claim'])->name('claim');
             Route::post('{ticket}/status', [TicketController::class, 'changeStatus'])->name('status');
             Route::post('{ticket}/attachments', [TicketAttachmentController::class, 'store'])->name('attachments.store');
             Route::delete('{ticket}/attachments/{attachment}', [TicketAttachmentController::class, 'destroy'])->name('attachments.destroy');

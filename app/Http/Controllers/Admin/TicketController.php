@@ -195,8 +195,30 @@ class TicketController extends Controller
                 'credentials' => $isStaff,
                 'delegate' => $user->can('delegate', $ticket),
                 'reviewDelegation' => $user->can('reviewDelegation', $ticket),
+                'claim' => $user->can('claim', $ticket),
             ],
         ]);
+    }
+
+    /**
+     * "Seguir ticket": the acting agent takes the ticket for themselves so they
+     * can answer it, pulling it away from the default assignee. Direct (no
+     * approval) — that is what separates it from delegation.
+     */
+    public function claim(Request $request, Ticket $ticket): RedirectResponse
+    {
+        $this->authorize('claim', $ticket);
+
+        $agent = $request->user();
+
+        $ticket->forceFill([
+            'assigned_to' => $agent->id,
+            'last_activity_at' => now(),
+        ])->save();
+
+        $this->logger->claimed($ticket, $agent);
+
+        return back()->with('success', "Ahora seguís el ticket {$ticket->code}. Ya podés responder.");
     }
 
     public function notifyCustomer(Request $request, Ticket $ticket): RedirectResponse

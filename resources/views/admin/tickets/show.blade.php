@@ -7,7 +7,7 @@
     $replyAsAgent = auth()->user()?->hasAnyRole(['Super Admin', 'Admin'])
         && data_get($ticket, 'agent.id')
         && data_get($ticket, 'agent.id') !== auth()->id();
-    $actIcon = ['created'=>'plus','assigned'=>'user-plus','unassigned'=>'user-minus','status_changed'=>'refresh-cw','priority_changed'=>'flag','replied'=>'message-square','note_added'=>'lock','customer_notified'=>'mail-check','whatsapp_contacted'=>'message-circle','delegation_requested'=>'git-pull-request-arrow','delegation_approved'=>'check-check','delegation_rejected'=>'x','attachment_added'=>'paperclip','attachment_removed'=>'paperclip','resolved'=>'circle-check-big','closed'=>'circle-x','reopened'=>'rotate-ccw','escalated'=>'trending-up'];
+    $actIcon = ['created'=>'plus','assigned'=>'user-plus','unassigned'=>'user-minus','claimed'=>'hand','status_changed'=>'refresh-cw','priority_changed'=>'flag','replied'=>'message-square','note_added'=>'lock','customer_notified'=>'mail-check','whatsapp_contacted'=>'message-circle','delegation_requested'=>'git-pull-request-arrow','delegation_approved'=>'check-check','delegation_rejected'=>'x','attachment_added'=>'paperclip','attachment_removed'=>'paperclip','resolved'=>'circle-check-big','closed'=>'circle-x','reopened'=>'rotate-ccw','escalated'=>'trending-up'];
     $fmtDt = fn ($d) => $d ? Carbon::parse($d)->translatedFormat('d M Y · H:i') : '—';
     $dayLabel = function ($c) {
         if (! $c) return '';
@@ -136,10 +136,27 @@
                         </div>
                     @else
                         <div class="border-t border-slate-200 p-4">
-                            <div class="flex items-center gap-2.5 rounded-xl bg-slate-50 px-3.5 py-3 text-sm text-slate-600 ring-1 ring-inset ring-slate-200">
-                                <i data-lucide="eye" class="h-4 w-4 shrink-0 text-slate-400"></i>
-                                <p>Este ticket está asignado a <span class="font-medium text-slate-800">{{ data_get($ticket,'agent.name') ?? 'otro agente' }}</span>. Podés verlo, pero no responder.</p>
+                            <div class="flex flex-col gap-3 rounded-xl bg-slate-50 px-3.5 py-3 text-sm text-slate-600 ring-1 ring-inset ring-slate-200 sm:flex-row sm:items-center sm:justify-between">
+                                <div class="flex items-center gap-2.5">
+                                    <i data-lucide="eye" class="h-4 w-4 shrink-0 text-slate-400"></i>
+                                    <p>
+                                        @if (data_get($ticket,'agent.name'))
+                                            Asignado a <span class="font-medium text-slate-800">{{ data_get($ticket,'agent.name') }}</span>. Podés verlo, pero no responder.
+                                        @else
+                                            Este ticket no tiene a nadie atendiéndolo. Podés verlo, pero no responder.
+                                        @endif
+                                    </p>
+                                </div>
+                                @if ($can['claim'])
+                                    <form method="POST" action="{{ route('admin.tickets.claim', $ticket['id']) }}" class="shrink-0">
+                                        @csrf
+                                        <x-button type="submit" class="w-full sm:w-auto"><i data-lucide="hand" class="h-4 w-4"></i> Seguir ticket</x-button>
+                                    </form>
+                                @endif
                             </div>
+                            @if ($can['claim'])
+                                <p class="mt-2 text-xs leading-5 text-slate-500">Si lo seguís, el ticket pasa a ser <span class="font-medium text-slate-600">tuyo</span> y vas a poder responder con tu nombre. Queda registrado en la actividad.</p>
+                            @endif
                         </div>
                     @endif
                 </x-card>

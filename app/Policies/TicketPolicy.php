@@ -107,6 +107,20 @@ class TicketPolicy
         return $user->hasPermissionTo('tickets.assign');
     }
 
+    /**
+     * "Seguir ticket": any ticket-working staff member (Agente / Admin / Super
+     * Admin) may take a ticket that isn't theirs and make it their own, so
+     * whoever is free can pick it up instead of waiting on the default assignee.
+     * Designers (create + view only, no tickets.reply) cannot. No approval
+     * needed — unlike delegation. Hidden once the ticket is already theirs.
+     */
+    public function claim(User $user, Ticket $ticket): bool
+    {
+        return $user->isStaff()
+            && $user->hasPermissionTo('tickets.reply')
+            && $ticket->assigned_to !== $user->id;
+    }
+
     // ----------------------------------------------------------------------
     // Visibility rules
     // ----------------------------------------------------------------------

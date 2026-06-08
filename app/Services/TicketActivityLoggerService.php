@@ -38,6 +38,12 @@ class TicketActivityLoggerService
         $this->log($ticket, 'unassigned', 'Asignación removida', [], $actor);
     }
 
+    /** An agent took the ticket for themselves via "Seguir ticket". */
+    public function claimed(Ticket $ticket, User $agent, ?User $actor = null): void
+    {
+        $this->log($ticket, 'claimed', "{$agent->name} tomó el ticket", ['agent_id' => $agent->id], $actor ?? $agent);
+    }
+
     public function statusChanged(Ticket $ticket, string $from, string $to, ?User $actor = null): void
     {
         $this->log($ticket, 'status_changed', "Estado: {$from} → {$to}", compact('from', 'to'), $actor);
