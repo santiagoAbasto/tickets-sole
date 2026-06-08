@@ -185,6 +185,115 @@ class HostCredentialRegistryTest extends TestCase
             ->assertNotFound();
     }
 
+    public function test_agent_cannot_overwrite_another_agents_host_by_duplicate_fingerprint(): void
+    {
+        $agent = $this->agent();
+        $other = $this->agent();
+        $host = HostCredential::create([
+            'created_by' => $other->id,
+            'fingerprint' => HostCredential::fingerprintFor([
+                'server_url' => 'https://shared.example.com',
+                'cpanel_user' => 'shared',
+                'hosting_provider' => 'cPanel',
+            ]),
+            'name' => 'Otro cliente',
+            'server_url' => 'https://shared.example.com',
+            'hosting_provider' => 'cPanel',
+            'cpanel_user' => 'shared',
+            'cpanel_password' => 'original-secret',
+        ]);
+
+        $this->actingAs($agent)
+            ->post(route('admin.host-credentials.store'), [
+                'name' => 'Intento',
+                'server_url' => 'https://shared.example.com',
+                'hosting_provider' => 'cPanel',
+                'cpanel_user' => 'shared',
+                'cpanel_password' => 'stolen-overwrite',
+            ])
+            ->assertForbidden();
+
+        $host->refresh();
+        $this->assertSame($other->id, $host->created_by);
+        $this->assertSame('original-secret', $host->cpanel_password);
+        $this->assertDatabaseCount('host_credentials', 1);
+    }
+
+    public function test_agent_cannot_merge_own_host_into_hidden_host_owned_by_another_agent(): void
+    {
+        $agent = $this->agent();
+        $other = $this->agent();
+        $hidden = HostCredential::create([
+            'created_by' => $other->id,
+            'fingerprint' => HostCredential::fingerprintFor([
+                'server_url' => 'https://hidden.example.com',
+                'cpanel_user' => 'hidden',
+            ]),
+            'name' => 'Oculto',
+            'server_url' => 'https://hidden.example.com',
+            'cpanel_user' => 'hidden',
+            'cpanel_password' => 'hidden-secret',
+        ]);
+        $mine = HostCredential::create([
+            'created_by' => $agent->id,
+            'fingerprint' => HostCredential::fingerprintFor([
+                'server_url' => 'https://mine-edit.example.com',
+                'cpanel_user' => 'mine',
+            ]),
+            'name' => 'Mio',
+            'server_url' => 'https://mine-edit.example.com',
+            'cpanel_user' => 'mine',
+        ]);
+
+        $this->actingAs($agent)
+            ->put(route('admin.host-credentials.update', $mine), [
+                'name' => 'Intento merge',
+                'server_url' => 'https://hidden.example.com',
+                'cpanel_user' => 'hidden',
+            ])
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('host_credentials', ['id' => $hidden->id, 'created_by' => $other->id]);
+        $this->assertDatabaseHas('host_credentials', ['id' => $mine->id, 'created_by' => $agent->id]);
+    }
+
+    public function test_ticket_sync_does_not_overwrite_hidden_host_owned_by_another_agent(): void
+    {
+        $agent = $this->agent();
+        $other = $this->agent();
+        $ticket = $this->ticket($agent);
+        $host = HostCredential::create([
+            'created_by' => $other->id,
+            'fingerprint' => HostCredential::fingerprintFor([
+                'server_url' => 'https://sync-hidden.example.com',
+                'cpanel_user' => 'shared',
+                'hosting_provider' => 'cPanel',
+            ]),
+            'name' => 'Original',
+            'server_url' => 'https://sync-hidden.example.com',
+            'hosting_provider' => 'cPanel',
+            'cpanel_user' => 'shared',
+            'cpanel_password' => 'original-secret',
+            'notes' => 'No tocar',
+        ]);
+
+        $this->actingAs($agent)
+            ->put(route('admin.tickets.credentials.update', $ticket), [
+                'server_url' => 'https://sync-hidden.example.com',
+                'hosting_provider' => 'cPanel',
+                'cpanel_user' => 'shared',
+                'cpanel_password' => 'new-secret',
+                'notes' => 'Intento de sobrescritura',
+            ])
+            ->assertRedirect();
+
+        $host->refresh();
+        $this->assertSame($other->id, $host->created_by);
+        $this->assertSame('original-secret', $host->cpanel_password);
+        $this->assertSame('No tocar', $host->notes);
+        $this->assertDatabaseCount('host_credentials', 1);
+    }
+
     public function test_host_registry_rejects_non_http_urls(): void
     {
         $agent = $this->agent();

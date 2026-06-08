@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
 <head>
-    @include('partials.head', ['title' => $title])
+    @include('partials.head', ['title' => $title, 'robots' => 'noindex, nofollow'])
 </head>
 <body class="h-full bg-canvas font-sans text-slate-700 antialiased">
     <div class="min-h-dvh">

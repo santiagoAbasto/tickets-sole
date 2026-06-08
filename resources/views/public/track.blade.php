@@ -1,4 +1,8 @@
-<x-layouts.public title="Seguí tu ticket" immersive>
+<x-layouts.public
+    title="Seguí tu ticket"
+    description="Consultá el estado de tu ticket de soporte Osole con tu código y email, y seguí la conversación del caso."
+    :canonical="route('public.track.form')"
+    immersive>
     <section class="mx-auto max-w-lg px-4 py-16 sm:py-24">
         <div class="text-center">
             <span class="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-cyan-200 ring-1 ring-inset ring-white/15 backdrop-blur">

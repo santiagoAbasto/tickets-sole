@@ -1,9 +1,60 @@
+@php
+    $pageTitle = ($title ?? null) ? $title.' · '.config('app.name', 'Osole Tickets') : config('app.name', 'Osole Tickets');
+    $shareTitle = $metaTitle ?? $pageTitle;
+    $metaDescription = $description ?? 'Mesa de ayuda digital de Osole para abrir tickets, adjuntar evidencia y seguir respuestas desde un único hilo.';
+    $metaUrl = $canonical ?? url()->current();
+    $brandName = $siteName ?? 'Osole Soporte';
+    $logoSvg = $logo ?? asset('img/logo.svg');
+    $shareImage = $image ?? asset('favicon/web-app-manifest-512x512.png');
+    $robots = $robots ?? 'index, follow, max-image-preview:large';
+@endphp
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<title>{{ ($title ?? null) ? $title . ' · ' : '' }}{{ config('app.name', 'Osole Tickets') }}</title>
+<title>{{ $pageTitle }}</title>
+<meta name="description" content="{{ $metaDescription }}">
+<meta name="robots" content="{{ $robots }}">
+<link rel="canonical" href="{{ $metaUrl }}">
+
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" href="{{ asset('img/logo.svg') }}" type="image/svg+xml">
+<link rel="apple-touch-icon" href="{{ asset('favicon/apple-touch-icon.png') }}">
+<link rel="manifest" href="{{ asset('favicon/site.webmanifest') }}">
+
+<meta property="og:locale" content="es_AR">
+<meta property="og:type" content="{{ $ogType ?? 'website' }}">
+<meta property="og:site_name" content="{{ $brandName }}">
+<meta property="og:logo" content="{{ $logoSvg }}">
+<meta property="og:title" content="{{ $shareTitle }}">
+<meta property="og:description" content="{{ $metaDescription }}">
+<meta property="og:url" content="{{ $metaUrl }}">
+<meta property="og:image" content="{{ $shareImage }}">
+<meta property="og:image:secure_url" content="{{ $shareImage }}">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta property="og:image:alt" content="Logo de Osole Soporte">
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="{{ $shareTitle }}">
+<meta name="twitter:description" content="{{ $metaDescription }}">
+<meta name="twitter:image" content="{{ $shareImage }}">
+
+<script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'Organization',
+    'name' => 'Osole',
+    'url' => url('/'),
+    'logo' => $logoSvg,
+    'contactPoint' => [[
+        '@type' => 'ContactPoint',
+        'contactType' => 'customer support',
+        'email' => 'soporte@osole.com.ar',
+        'availableLanguage' => ['Spanish'],
+    ]],
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+</script>
 
 {{-- Fonts (privacy-friendly, no build) --}}
 <link rel="preconnect" href="https://fonts.bunny.net">

@@ -1,4 +1,7 @@
-<x-layouts.public title="Consulta recibida">
+<x-layouts.public
+    title="Consulta recibida"
+    description="Tu consulta fue recibida por Osole Soporte. Guardá el código del ticket para seguir el estado y las respuestas."
+    robots="noindex, nofollow">
     <section class="mx-auto flex max-w-lg flex-col items-center px-4 py-20 text-center">
         <span class="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 ring-1 ring-inset ring-emerald-200">
             <i data-lucide="circle-check-big" class="h-8 w-8"></i>

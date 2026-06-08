@@ -2,7 +2,13 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
 <head>
-    @include('partials.head', ['title' => $title])
+    @include('partials.head', [
+        'title' => $title,
+        'metaTitle' => 'Osole Soporte · Mesa de ayuda digital',
+        'description' => 'Ingresá a Osole Soporte para gestionar tickets, responder consultas y mantener cada caso ordenado en un único hilo.',
+        'robots' => 'noindex, nofollow',
+        'siteName' => 'Osole Soporte',
+    ])
 </head>
 <body class="h-full bg-canvas font-sans text-slate-700 antialiased">
     <div class="flex min-h-dvh">

@@ -18,6 +18,14 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
         ]);
+
+        $middleware->redirectUsersTo(function (Request $request): string {
+            $user = $request->user();
+
+            return $user?->isStaff()
+                ? route('admin.tickets.dashboard')
+                : route('portal.tickets.index');
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

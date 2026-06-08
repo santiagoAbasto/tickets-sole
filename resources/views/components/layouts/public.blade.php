@@ -1,8 +1,23 @@
-@props(['title' => null, 'hero' => false, 'immersive' => false])
+@props([
+    'title' => null,
+    'description' => 'Osole Soporte permite abrir tickets, adjuntar evidencia y seguir cada respuesta desde un chat claro y trazable.',
+    'image' => null,
+    'canonical' => null,
+    'robots' => 'index, follow, max-image-preview:large',
+    'hero' => false,
+    'immersive' => false,
+])
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
 <head>
-    @include('partials.head', ['title' => $title])
+    @include('partials.head', [
+        'title' => $title,
+        'description' => $description,
+        'image' => $image,
+        'canonical' => $canonical,
+        'robots' => $robots,
+        'siteName' => 'Osole Soporte',
+    ])
 </head>
 <body class="h-full font-sans antialiased {{ $immersive ? 'bg-sidebar text-slate-300' : 'bg-canvas text-slate-700' }}">
     @if ($immersive)<x-public.backdrop />@endif

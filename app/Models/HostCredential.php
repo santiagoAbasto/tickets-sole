@@ -78,10 +78,20 @@ class HostCredential extends Model
         ];
         $data['fingerprint'] = self::fingerprintFor($data);
 
-        return self::updateOrCreate(
-            ['fingerprint' => $data['fingerprint']],
-            collect($data)->reject(fn ($value, $key) => $key === 'created_by' && blank($value))->all(),
-        );
+        $values = collect($data)->reject(fn ($value, $key) => $key === 'created_by' && blank($value))->all();
+        $existing = self::where('fingerprint', $data['fingerprint'])->first();
+
+        if (! $existing) {
+            return self::create($values);
+        }
+
+        if ($actor && ! $actor->hasAnyRole(['Super Admin', 'Admin']) && $existing->created_by !== $actor->id) {
+            return $existing;
+        }
+
+        $existing->update($values);
+
+        return $existing;
     }
 
     private static function cleanKey(mixed $value): string

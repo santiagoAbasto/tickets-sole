@@ -3,7 +3,11 @@
     $resolved = ! empty($ticket['resolved_at']);
     $lastMessageId = collect($ticket['messages'])->max('id') ?? 0;
 @endphp
-<x-layouts.public :title="$ticket['code']" immersive>
+<x-layouts.public
+    :title="$ticket['code']"
+    description="Seguimiento privado del ticket de soporte Osole. Revisá el estado, las respuestas y agregá información al caso."
+    robots="noindex, nofollow"
+    immersive>
     <section class="mx-auto max-w-2xl px-4 py-10">
         <a href="{{ route('public.track.form') }}" class="inline-flex items-center gap-1.5 text-sm font-medium text-slate-300 transition-colors hover:text-white"><i data-lucide="arrow-left" class="h-4 w-4"></i> Buscar otro ticket</a>
 

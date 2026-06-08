@@ -73,6 +73,8 @@ Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
 Route::prefix('admin')->name('admin.')
     ->middleware(['auth', 'role:Super Admin|Admin|Agente|Diseñadora industrial'])
     ->group(function () {
+        Route::get('/', fn () => redirect()->route('admin.tickets.dashboard'))->name('home');
+
         // Tickets
         Route::prefix('tickets')->name('tickets.')->group(function () {
             Route::get('dashboard', [TicketDashboardController::class, 'index'])->name('dashboard');

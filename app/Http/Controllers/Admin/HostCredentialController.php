@@ -51,10 +51,17 @@ class HostCredentialController extends Controller
         $data['created_by'] = $request->user()->id;
         $data['fingerprint'] = HostCredential::fingerprintFor($data);
 
-        HostCredential::updateOrCreate(
-            ['fingerprint' => $data['fingerprint']],
-            $data,
-        );
+        $existing = HostCredential::where('fingerprint', $data['fingerprint'])->first();
+
+        if ($existing) {
+            abort_unless($this->canManage($request, $existing), 403);
+
+            $existing->update($data);
+
+            return back()->with('success', 'Host actualizado.');
+        }
+
+        HostCredential::create($data);
 
         return back()->with('success', 'Host registrado.');
     }
@@ -70,6 +77,8 @@ class HostCredentialController extends Controller
         $data['fingerprint'] = HostCredential::fingerprintFor($data);
 
         if ($existing = HostCredential::where('fingerprint', $data['fingerprint'])->whereKeyNot($hostCredential->id)->first()) {
+            abort_unless($this->canManage($request, $existing), 403);
+
             $existing->update($data);
             $hostCredential->delete();
 
@@ -112,9 +121,13 @@ class HostCredentialController extends Controller
     {
         $user = $request->user();
 
-        abort_unless(
-            $user->hasAnyRole(['Super Admin', 'Admin']) || $hostCredential->created_by === $user->id,
-            403,
-        );
+        abort_unless($this->canManage($request, $hostCredential), 403);
+    }
+
+    private function canManage(Request $request, HostCredential $hostCredential): bool
+    {
+        $user = $request->user();
+
+        return $user->hasAnyRole(['Super Admin', 'Admin']) || $hostCredential->created_by === $user->id;
     }
 }

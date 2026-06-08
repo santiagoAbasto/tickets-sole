@@ -1,4 +1,8 @@
-<x-layouts.public title="Soporte Osole" :hero="true">
+<x-layouts.public
+    title="Soporte Osole"
+    description="Abrí un ticket de soporte con Osole, adjuntá capturas y seguí cada respuesta desde un chat claro con código de seguimiento."
+    :canonical="route('public.support.create')"
+    :hero="true">
     <section id="inicio" x-data="supportHero" @mousemove="track($event)"
              class="relative isolate overflow-hidden bg-sidebar pt-[72px] text-white">
         <div id="hero-3d" class="pointer-events-none absolute inset-0 z-0 opacity-70"></div>
