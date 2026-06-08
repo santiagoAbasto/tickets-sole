@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\TicketMessageController;
 use App\Http\Controllers\Admin\TicketNoteController;
 use App\Http\Controllers\Admin\TicketPriorityController;
 use App\Http\Controllers\Admin\TicketStatusController;
+use App\Http\Controllers\Admin\TelegramAlertController;
 use App\Http\Controllers\Admin\TicketWhatsappController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -106,6 +107,12 @@ Route::prefix('admin')->name('admin.')
         Route::middleware('permission:settings.manage')->group(function () {
             Route::get('assignment', [AssignmentSettingController::class, 'edit'])->name('assignment-settings.edit');
             Route::put('assignment', [AssignmentSettingController::class, 'update'])->name('assignment-settings.update');
+
+            // Outgoing ticket alerts via Telegram — notify-only.
+            Route::get('telegram-alerts', [TelegramAlertController::class, 'edit'])->name('telegram-alerts.edit');
+            Route::put('telegram-alerts', [TelegramAlertController::class, 'update'])->name('telegram-alerts.update');
+            Route::post('telegram-alerts/test', [TelegramAlertController::class, 'test'])->middleware('throttle:6,1')->name('telegram-alerts.test');
+            Route::post('telegram-alerts/detect', [TelegramAlertController::class, 'detect'])->middleware('throttle:6,1')->name('telegram-alerts.detect');
         });
 
         // Public-site configuration — Super Admin only.

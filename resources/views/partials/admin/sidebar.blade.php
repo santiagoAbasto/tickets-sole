@@ -57,6 +57,10 @@
             <a href="{{ route('admin.assignment-settings.edit') }}" class="{{ $linkBase }} {{ $on ? $active : $idle }}">
                 <i data-lucide="user-check" class="h-5 w-5 shrink-0 {{ $on ? $iconActive : $iconIdle }}"></i> Asignación de tickets
             </a>
+            @php $on = request()->routeIs('admin.telegram-alerts.*'); @endphp
+            <a href="{{ route('admin.telegram-alerts.edit') }}" class="{{ $linkBase }} {{ $on ? $active : $idle }}">
+                <i data-lucide="send" class="h-5 w-5 shrink-0 {{ $on ? $iconActive : $iconIdle }}"></i> Avisos Telegram
+            </a>
             @php $on = request()->routeIs('admin.ticket-settings.departments.*'); @endphp
             <a href="{{ route('admin.ticket-settings.departments.index') }}" class="{{ $linkBase }} {{ $on ? $active : $idle }}">
                 <i data-lucide="building-2" class="h-5 w-5 shrink-0 {{ $on ? $iconActive : $iconIdle }}"></i> Departamentos

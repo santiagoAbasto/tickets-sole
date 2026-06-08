@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Notification;
 
 class TicketNotificationService
 {
+    public function __construct(private TelegramNotifier $telegram) {}
+
     /**
      * In-app notify all Admins/Super Admins (+ assigned agent); email goes only
      * to the primary recipient to keep inboxes (and SMTP limits) sane.
@@ -28,6 +30,10 @@ class TicketNotificationService
         foreach ($recipients as $user) {
             $user->notify(new TicketCreatedNotification($ticket, email: $user->id === $primaryId));
         }
+
+        // Telegram ping — deferred so a slow/unreachable bot never delays ticket
+        // creation. No-op unless configured + enabled.
+        defer(fn () => $this->telegram->ticketCreated($ticket));
     }
 
     public function ticketCreatedForCustomer(Ticket $ticket): void
