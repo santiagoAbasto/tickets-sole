@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Concerns\ValidatesAttachments;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 
 class SubmitPublicTicketRequest extends FormRequest
@@ -49,5 +50,12 @@ class SubmitPublicTicketRequest extends FormRequest
     public function attributes(): array
     {
         return ['category_id' => 'categoría'];
+    }
+
+    protected function failedValidation(Validator $validator): void
+    {
+        session()->flash('error', 'No pudimos enviar la consulta. Revisá los campos marcados y probá de nuevo.');
+
+        parent::failedValidation($validator);
     }
 }

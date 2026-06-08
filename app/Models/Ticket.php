@@ -24,6 +24,19 @@ class Ticket extends Model
     ];
 
     protected $casts = [
+        // Foreign keys cast to int so strict comparisons in policies
+        // (e.g. assigned_to === $user->id) hold under MySQL/PDO, which can
+        // otherwise return these columns as strings and silently break
+        // staffCanAct() — leaving the assigned agent unable to reply, change
+        // status or contact the customer.
+        'assigned_to' => 'integer',
+        'created_by' => 'integer',
+        'customer_id' => 'integer',
+        'company_id' => 'integer',
+        'category_id' => 'integer',
+        'priority_id' => 'integer',
+        'status_id' => 'integer',
+        'department_id' => 'integer',
         'due_at' => 'datetime',
         'first_response_at' => 'datetime',
         'resolved_at' => 'datetime',

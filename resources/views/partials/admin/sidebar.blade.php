@@ -44,6 +44,13 @@
             </a>
         @endcan
 
+        @if (auth()->user()?->isStaff())
+            @php $on = request()->routeIs('admin.host-credentials.*'); @endphp
+            <a href="{{ route('admin.host-credentials.index') }}" class="{{ $linkBase }} {{ $on ? $active : $idle }}">
+                <i data-lucide="server-cog" class="h-5 w-5 shrink-0 {{ $on ? $iconActive : $iconIdle }}"></i> Hosts / accesos
+            </a>
+        @endif
+
         @can('reports.view')
             @php $on = request()->routeIs('admin.reports.*'); @endphp
             <a href="{{ route('admin.reports.index') }}" class="{{ $linkBase }} {{ $on ? $active : $idle }}">

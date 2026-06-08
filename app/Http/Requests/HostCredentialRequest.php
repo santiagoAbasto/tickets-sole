@@ -4,14 +4,11 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateTicketCredentialRequest extends FormRequest
+class HostCredentialRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $ticket = $this->route('ticket');
-
-        // All staff who can see the ticket may manage its internal credentials.
-        return $this->user()->isStaff() && $this->user()->can('view', $ticket);
+        return $this->user()->isStaff();
     }
 
     /**
@@ -20,11 +17,13 @@ class UpdateTicketCredentialRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'cpanel_user' => ['nullable', 'string', 'max:190'],
-            'cpanel_password' => ['nullable', 'string', 'max:190'],
+            'name' => ['required_without_all:website_url,server_url,cpanel_user,hosting_provider', 'nullable', 'string', 'max:190'],
+            'website_url' => ['nullable', 'string', 'max:500', 'regex:/^https?:\/\/[^\s]+$/i'],
             'server_url' => ['nullable', 'string', 'max:500', 'regex:/^https?:\/\/[^\s]+$/i'],
             'hosting_type' => ['nullable', 'in:osole,external'],
             'hosting_provider' => ['nullable', 'string', 'max:190'],
+            'cpanel_user' => ['nullable', 'string', 'max:190'],
+            'cpanel_password' => ['nullable', 'string', 'max:190'],
             'notes' => ['nullable', 'string', 'max:2000'],
         ];
     }

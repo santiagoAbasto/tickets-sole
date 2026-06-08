@@ -79,6 +79,7 @@
                             <tr class="border-b border-slate-200 text-left text-xs font-semibold uppercase tracking-wide text-slate-400">
                                 <th class="px-5 py-3">Código</th><th class="px-3 py-3">Asunto</th><th class="px-3 py-3">Estado</th>
                                 <th class="px-3 py-3">Prioridad</th><th class="px-3 py-3">Agente</th><th class="px-3 py-3">Creado</th><th class="px-5 py-3 text-right">Vence</th>
+                                @can('tickets.delete')<th class="px-3 py-3"><span class="sr-only">Acciones</span></th>@endcan
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
@@ -101,6 +102,14 @@
                                         @if ($t['is_overdue'])<x-overdue-badge :label="$t['overdue_human']" />
                                         @else<span class="text-xs text-slate-400">{{ $t['due_at'] ? Carbon::parse($t['due_at'])->diffForHumans() : '—' }}</span>@endif
                                     </td>
+                                    @can('tickets.delete')
+                                        <td class="whitespace-nowrap px-3 py-3 text-right" onclick="event.stopPropagation()">
+                                            <form method="POST" action="{{ route('admin.tickets.destroy', $t['id']) }}" onsubmit="return confirm('¿Eliminar el ticket {{ $t['code'] }}? Se quita de la lista.')">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" title="Eliminar ticket" aria-label="Eliminar ticket" class="rounded-lg p-1.5 text-slate-300 transition-colors hover:bg-rose-50 hover:text-rose-600"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
+                                            </form>
+                                        </td>
+                                    @endcan
                                 </tr>
                             @endforeach
                         </tbody>
@@ -109,15 +118,23 @@
                 {{-- Mobile --}}
                 <ul class="divide-y divide-slate-100 md:hidden">
                     @foreach ($tickets as $t)
-                        <li><a href="{{ route('admin.tickets.show', $t['id']) }}" class="block px-4 py-3.5 hover:bg-slate-50">
-                            <div class="flex items-center justify-between gap-2">
-                                <span class="flex items-center gap-1.5"><span class="font-mono text-xs text-slate-400">{{ $t['code'] }}</span>@php $o = $origins[$t['source'] ?? 'admin'] ?? $origins['admin']; @endphp<span class="inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-medium ring-1 ring-inset {{ $o['cls'] }}"><i data-lucide="{{ $o['icon'] }}" class="h-2.5 w-2.5"></i> {{ $o['label'] }}</span></span>
-                                @if ($t['is_overdue'])<x-overdue-badge :label="$t['overdue_human']" />@endif
-                            </div>
-                            <p class="mt-1 truncate font-medium text-slate-800">{{ $t['subject'] }}</p>
-                            <p class="truncate text-xs text-slate-500">{{ data_get($t, 'customer.name') }}</p>
-                            <div class="mt-2 flex flex-wrap items-center gap-2"><x-status-badge :status="$t['status']" /><x-priority-badge :priority="$t['priority']" /></div>
-                        </a></li>
+                        <li class="flex items-stretch">
+                            <a href="{{ route('admin.tickets.show', $t['id']) }}" class="block flex-1 px-4 py-3.5 hover:bg-slate-50">
+                                <div class="flex items-center justify-between gap-2">
+                                    <span class="flex items-center gap-1.5"><span class="font-mono text-xs text-slate-400">{{ $t['code'] }}</span>@php $o = $origins[$t['source'] ?? 'admin'] ?? $origins['admin']; @endphp<span class="inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-medium ring-1 ring-inset {{ $o['cls'] }}"><i data-lucide="{{ $o['icon'] }}" class="h-2.5 w-2.5"></i> {{ $o['label'] }}</span></span>
+                                    @if ($t['is_overdue'])<x-overdue-badge :label="$t['overdue_human']" />@endif
+                                </div>
+                                <p class="mt-1 truncate font-medium text-slate-800">{{ $t['subject'] }}</p>
+                                <p class="truncate text-xs text-slate-500">{{ data_get($t, 'customer.name') }}</p>
+                                <div class="mt-2 flex flex-wrap items-center gap-2"><x-status-badge :status="$t['status']" /><x-priority-badge :priority="$t['priority']" /></div>
+                            </a>
+                            @can('tickets.delete')
+                                <form method="POST" action="{{ route('admin.tickets.destroy', $t['id']) }}" onsubmit="return confirm('¿Eliminar el ticket {{ $t['code'] }}? Se quita de la lista.')" class="flex items-center px-3">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" title="Eliminar ticket" aria-label="Eliminar ticket" class="rounded-lg p-2 text-slate-300 transition-colors hover:bg-rose-50 hover:text-rose-600"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
+                                </form>
+                            @endcan
+                        </li>
                     @endforeach
                 </ul>
             @endif

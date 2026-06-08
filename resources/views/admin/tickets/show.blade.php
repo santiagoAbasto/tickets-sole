@@ -175,6 +175,18 @@
                                 @if (data_get($ticket,'customer.company'))<p class="flex items-center gap-1 text-xs text-slate-500"><i data-lucide="building-2" class="h-3 w-3"></i> {{ data_get($ticket,'customer.company') }}</p>@endif
                             </div>
                         </div>
+
+                        {{-- Link DIRECTO y firmado: el cliente lo abre y entra al chat de su ticket al instante, sin código ni email --}}
+                        @php $trackLink = \Illuminate\Support\Facades\URL::signedRoute('public.track.direct', ['ticket' => $ticket['id']]); @endphp
+                        <div class="mt-4" x-data="{ copied: false }">
+                            <button type="button"
+                                    @click="navigator.clipboard.writeText(@js($trackLink)).then(() => { copied = true; setTimeout(() => copied = false, 2000) })"
+                                    class="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-inset ring-slate-200 transition-colors hover:bg-slate-50">
+                                <i data-lucide="link" class="h-4 w-4 text-slate-400"></i>
+                                <span x-text="copied ? '¡Link copiado!' : 'Copiar link de seguimiento'"></span>
+                            </button>
+                            <p class="mt-1.5 text-xs leading-5 text-slate-400">Link directo y seguro: el cliente lo abre y ve el chat de su ticket al instante, sin cargar código ni email.</p>
+                        </div>
                     </div>
 
                     @if ($can['notifyCustomer'])
@@ -297,12 +309,33 @@
                             </ul>
                         </div>
                     @endif
+
+                    {{-- Eliminar ticket — Admin / Super Admin (para sacar duplicados) --}}
+                    @if ($can['delete'])
+                        <div class="p-5" x-data="{ confirm: false }">
+                            <button type="button" @click="confirm = true" x-show="!confirm" class="inline-flex items-center gap-1.5 text-sm font-medium text-rose-600 transition-colors hover:text-rose-700">
+                                <i data-lucide="trash-2" class="h-4 w-4"></i> Eliminar ticket
+                            </button>
+                            <div x-show="confirm" x-cloak class="space-y-2.5">
+                                <p class="text-sm text-slate-600">¿Eliminar <span class="font-medium text-slate-800">{{ $ticket['code'] }}</span>? Se quita de la lista de tickets.</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <form method="POST" action="{{ route('admin.tickets.destroy', $ticket['id']) }}">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-rose-600 px-3 text-sm font-semibold text-white transition-colors hover:bg-rose-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2">
+                                            <i data-lucide="trash-2" class="h-4 w-4"></i> Sí, eliminar
+                                        </button>
+                                    </form>
+                                    <button type="button" @click="confirm = false" class="inline-flex min-h-9 items-center rounded-lg bg-white px-3 text-sm font-medium text-slate-600 ring-1 ring-inset ring-slate-200 transition-colors hover:bg-slate-50">Cancelar</button>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </x-card>
 
                 {{-- Internal credentials (staff only) --}}
                 @if ($can['credentials'])
                     @php $cr = $ticket['credentials'] ?? null; @endphp
-                    <div class="rounded-2xl border border-slate-200 bg-surface p-5 shadow-sm" x-data="{ editing: false, revealed: false, hasData: @js((bool) $cr), pwd: @js($cr['cpanel_password'] ?? ''), editHosting: @js($cr['hosting_type'] ?? ''), editShow: false, copy(t) { if (t) { navigator.clipboard?.writeText(t); this.copied = true; setTimeout(() => this.copied = false, 1200); } }, copied: false }">
+                    <div class="rounded-2xl border border-slate-200 bg-surface p-5 shadow-sm" x-data="{ editing: false, revealed: false, hasData: @js((bool) $cr), password: null, loadingPassword: false, editHosting: @js($cr['hosting_type'] ?? ''), editShow: false, copied: false, async revealPassword() { if (this.password !== null) { this.revealed = ! this.revealed; return; } this.loadingPassword = true; const response = await fetch(@js(route('admin.tickets.credentials.reveal-password', $ticket['id'])), { method: 'POST', headers: { 'X-CSRF-TOKEN': @js(csrf_token()), 'Accept': 'application/json' } }); this.loadingPassword = false; if (!response.ok) return; const data = await response.json(); this.password = data.password || ''; this.revealed = true; }, async copyPassword() { if (this.password === null) { await this.revealPassword(); } this.copy(this.password); }, copy(t) { if (t) { navigator.clipboard?.writeText(t); this.copied = true; setTimeout(() => this.copied = false, 1200); } } }">
                         <div class="flex items-center justify-between gap-2">
                             <h3 class="flex items-center gap-1.5 text-sm font-semibold text-slate-900">
                                 <i data-lucide="key-round" class="h-4 w-4 text-slate-400"></i> Acceso / credenciales
@@ -310,6 +343,37 @@
                             </h3>
                             <button type="button" @click="editing = ! editing; revealed = false" class="shrink-0 text-xs font-medium text-brand-600 hover:underline" x-text="editing ? 'Cancelar' : (hasData ? 'Editar' : 'Agregar')"></button>
                         </div>
+
+                        <form method="POST" action="{{ route('admin.tickets.credentials.link-host', $ticket['id']) }}" class="mt-3 rounded-xl border border-slate-200 bg-slate-50/70 p-3">
+                            @csrf
+                            <label class="label">Vincular host cargado</label>
+                            <div class="flex flex-col gap-2 sm:flex-row">
+                                <select name="host_credential_id" class="select min-w-0 flex-1" @disabled($hostCredentials->isEmpty())>
+                                    @if ($hostCredentials->isEmpty())
+                                        <option value="">No hay hosts disponibles</option>
+                                    @else
+                                        <option value="">Elegí un host/acceso...</option>
+                                        @foreach ($hostCredentials as $hostCredential)
+                                            @php
+                                                $hostName = $hostCredential->name ?: ($hostCredential->website_url ?: ($hostCredential->server_url ?: 'Host sin nombre'));
+                                                $hostMeta = collect([$hostCredential->hosting_provider, $hostCredential->cpanel_user])->filter()->implode(' · ');
+                                            @endphp
+                                            <option value="{{ $hostCredential->id }}">
+                                                {{ $hostName }}{{ $hostMeta ? ' — '.$hostMeta : '' }}
+                                            </option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                                <button type="submit" class="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg bg-white px-3 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-200 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50" @disabled($hostCredentials->isEmpty())>
+                                    <i data-lucide="link-2" class="h-4 w-4 text-slate-400"></i>
+                                    Vincular
+                                </button>
+                            </div>
+                            <p class="mt-1.5 text-xs leading-5 text-slate-500">Solo visible para el equipo. Copia el acceso guardado al ticket interno sin exponerlo al cliente.</p>
+                            @error('host_credential_id')
+                                <p class="mt-1.5 text-xs text-rose-600">{{ $message }}</p>
+                            @enderror
+                        </form>
 
                         {{-- View mode --}}
                         <div x-show="!editing" class="mt-3">
@@ -327,8 +391,8 @@
                                     @if ($cr['cpanel_user'])
                                         <div class="flex items-center justify-between gap-3"><dt class="text-slate-400">Usuario</dt><dd class="flex items-center gap-1.5"><span class="font-mono text-slate-700">{{ $cr['cpanel_user'] }}</span><button type="button" @click="copy(@js($cr['cpanel_user']))" class="text-slate-400 transition-colors hover:text-slate-600" aria-label="Copiar usuario"><i data-lucide="copy" class="h-3.5 w-3.5"></i></button></dd></div>
                                     @endif
-                                    @if ($cr['cpanel_password'])
-                                        <div class="flex items-center justify-between gap-3"><dt class="text-slate-400">Contraseña</dt><dd class="flex items-center gap-1.5"><span class="font-mono text-slate-700" x-text="revealed ? pwd : '••••••••'"></span><button type="button" @click="revealed = ! revealed" class="text-slate-400 transition-colors hover:text-slate-600" :aria-label="revealed ? 'Ocultar' : 'Mostrar'"><i data-lucide="eye" x-show="!revealed" class="h-3.5 w-3.5"></i><i data-lucide="eye-off" x-show="revealed" x-cloak class="h-3.5 w-3.5"></i></button><button type="button" @click="copy(pwd)" class="text-slate-400 transition-colors hover:text-slate-600" aria-label="Copiar contraseña"><i data-lucide="copy" class="h-3.5 w-3.5"></i></button></dd></div>
+                                    @if ($cr['has_password'])
+                                        <div class="flex items-center justify-between gap-3"><dt class="text-slate-400">Contraseña</dt><dd class="flex items-center gap-1.5"><span class="font-mono text-slate-700" x-text="revealed ? (password || 'Sin contraseña') : '••••••••'"></span><button type="button" @click="revealPassword()" class="text-slate-400 transition-colors hover:text-slate-600 disabled:opacity-50" :aria-label="revealed ? 'Ocultar' : 'Mostrar'" :disabled="loadingPassword"><i data-lucide="eye" x-show="!revealed" class="h-3.5 w-3.5"></i><i data-lucide="eye-off" x-show="revealed" x-cloak class="h-3.5 w-3.5"></i></button><button type="button" @click="copyPassword()" class="text-slate-400 transition-colors hover:text-slate-600 disabled:opacity-50" aria-label="Copiar contraseña" :disabled="loadingPassword"><i data-lucide="copy" class="h-3.5 w-3.5"></i></button></dd></div>
                                     @endif
                                     @if ($cr['notes'])
                                         <div><dt class="mb-1 text-slate-400">Notas</dt><dd class="whitespace-pre-wrap text-slate-600">{{ $cr['notes'] }}</dd></div>
@@ -371,7 +435,7 @@
                             <div>
                                 <label class="label">Contraseña de servidor</label>
                                 <div class="relative">
-                                    <input :type="editShow ? 'text' : 'password'" name="cpanel_password" value="{{ $cr['cpanel_password'] ?? '' }}" class="input pr-10" autocomplete="new-password">
+                                    <input :type="editShow ? 'text' : 'password'" name="cpanel_password" class="input pr-10" autocomplete="new-password" placeholder="Dejar vacío para mantener la actual">
                                     <button type="button" @click="editShow = ! editShow" :aria-label="editShow ? 'Ocultar' : 'Mostrar'" class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-slate-400 hover:text-slate-600"><i x-show="!editShow" data-lucide="eye" class="h-4 w-4"></i><i x-show="editShow" x-cloak data-lucide="eye-off" class="h-4 w-4"></i></button>
                                 </div>
                             </div>

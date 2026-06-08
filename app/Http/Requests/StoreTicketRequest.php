@@ -35,7 +35,7 @@ class StoreTicketRequest extends FormRequest
             // Internal-only hosting/cPanel access (optional).
             'cpanel_user' => ['nullable', 'string', 'max:190'],
             'cpanel_password' => ['nullable', 'string', 'max:190'],
-            'server_url' => ['nullable', 'string', 'max:500'],
+            'server_url' => ['nullable', 'string', 'max:500', 'regex:/^https?:\/\/[^\s]+$/i'],
             'hosting_type' => ['nullable', 'in:osole,external'],
             'hosting_provider' => ['nullable', 'string', 'max:190'],
             'credentials_notes' => ['nullable', 'string', 'max:2000'],

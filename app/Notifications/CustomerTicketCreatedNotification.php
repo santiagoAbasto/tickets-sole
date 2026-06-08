@@ -7,6 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\URL;
 
 class CustomerTicketCreatedNotification extends Notification implements ShouldQueue
 {
@@ -31,8 +32,8 @@ class CustomerTicketCreatedNotification extends Notification implements ShouldQu
             ->greeting('Creamos un ticket para tu consulta')
             ->line("Tu ticket {$this->ticket->code} quedó registrado en la mesa de ayuda de Osole.")
             ->line("Asunto: {$this->ticket->subject}")
-            ->line('Para consultar el estado, ingresá con este código y el email donde recibiste este mensaje.')
-            ->action('Seguir ticket', route('public.track.form'))
+            ->line('Hacé clic en el botón para seguir tu ticket y ver las respuestas — se abre directo, sin cargar nada.')
+            ->action('Seguir mi ticket', URL::signedRoute('public.track.direct', ['ticket' => $this->ticket->id]))
             ->line('Gracias. El equipo de soporte te responderá por este mismo hilo de atención.');
     }
 }

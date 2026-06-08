@@ -86,7 +86,8 @@
         box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-brand-500) 18%, transparent);
     }
     .input[aria-invalid="true"],
-    .textarea[aria-invalid="true"] {
+    .textarea[aria-invalid="true"],
+    .select[aria-invalid="true"] {
         border-color: theme(--color-rose-400);
     }
     .label {
@@ -215,23 +216,23 @@
 }
 .support-node {
     position: absolute;
-    z-index: 2;
+    z-index: 1;
     display: flex;
     width: 2.75rem;
     height: 2.75rem;
     align-items: center;
     justify-content: center;
     border-radius: 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    background: linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
-    color: rgb(207, 250, 254);
-    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255,255,255,.15);
+    border: 1px solid rgba(103, 232, 249, 0.22);
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.82), rgba(8, 47, 73, 0.58));
+    color: rgb(165, 243, 252);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.38), 0 0 34px rgba(34, 211, 238, 0.16), inset 0 1px 0 rgba(255,255,255,.12);
     backdrop-filter: blur(14px);
     animation: osoleNodeFloat 6s ease-in-out infinite;
 }
-.support-node-a { right: 3%; top: 12%; animation-delay: -1s; }
-.support-node-b { left: 2%; top: 48%; animation-delay: -2.5s; }
-.support-node-c { right: 12%; bottom: 8%; animation-delay: -4s; }
+.support-node-a { right: -3.25rem; top: 10%; animation-delay: -1s; }
+.support-node-b { left: -3.5rem; top: 46%; animation-delay: -2.5s; }
+.support-node-c { right: -2.75rem; bottom: 9%; animation-delay: -4s; }
 
 .dashboard-command {
     position: relative;

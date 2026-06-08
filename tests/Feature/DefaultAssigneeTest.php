@@ -143,10 +143,20 @@ class DefaultAssigneeTest extends TestCase
             'subject' => 'Consulta pública',
             'category_id' => TicketCategory::query()->value('id'),
             'description' => 'Tengo una duda sobre el servicio.',
-        ])->assertRedirect();
+        ])->assertRedirect(route('public.track.show'))
+            ->assertSessionHas('tracked_ticket_id');
 
         $ticket = Ticket::where('subject', 'Consulta pública')->firstOrFail();
         $this->assertSame($default->id, $ticket->assigned_to);
+    }
+
+    public function test_public_ticket_validation_shows_error_toast(): void
+    {
+        $this->from(route('public.support.create'))
+            ->post(route('public.support.store'), [])
+            ->assertRedirect(route('public.support.create'))
+            ->assertSessionHasErrors(['name', 'email', 'subject', 'category_id', 'description'])
+            ->assertSessionHas('error', 'No pudimos enviar la consulta. Revisá los campos marcados y probá de nuevo.');
     }
 
     public function test_helper_returns_null_when_default_is_inactive(): void

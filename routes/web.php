@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AgentController;
 use App\Http\Controllers\Admin\AssignmentSettingController;
 use App\Http\Controllers\Admin\DepartmentController;
+use App\Http\Controllers\Admin\HostCredentialController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\ReportController;
@@ -44,6 +45,11 @@ Route::post('seguimiento', [PublicTicketController::class, 'lookup'])->middlewar
 Route::get('seguimiento/ticket', [PublicTicketController::class, 'tracked'])->name('public.track.show');
 Route::get('seguimiento/ticket/messages', [PublicTicketController::class, 'trackedMessages'])->name('public.track.messages');
 Route::post('seguimiento/ticket/responder', [PublicTicketController::class, 'trackedReply'])->middleware('throttle:15,1')->name('public.track.reply');
+
+// Direct share link: a signed URL (HMAC with APP_KEY) opens the customer's
+// ticket chat without entering code + email. Tamper-proof and ticket-scoped.
+Route::get('seguimiento/t/{ticket}', [PublicTicketController::class, 'direct'])
+    ->middleware('signed')->name('public.track.direct');
 
 // ---------------------------------------------------------------------------
 // Authentication
@@ -87,6 +93,8 @@ Route::prefix('admin')->name('admin.')
             Route::delete('{ticket}/attachments/{attachment}', [TicketAttachmentController::class, 'destroy'])->name('attachments.destroy');
             Route::post('{ticket}/notify-customer', [TicketController::class, 'notifyCustomer'])->name('notify-customer');
             Route::put('{ticket}/credentials', [TicketCredentialController::class, 'update'])->name('credentials.update');
+            Route::post('{ticket}/credentials/reveal-password', [TicketCredentialController::class, 'revealPassword'])->middleware('throttle:20,1')->name('credentials.reveal-password');
+            Route::post('{ticket}/credentials/link-host', [TicketCredentialController::class, 'linkHost'])->name('credentials.link-host');
             // Delegation workflow: assignee requests → Super Admin/Admin reviews.
             Route::post('{ticket}/delegations', [TicketDelegationController::class, 'store'])->name('delegations.store');
             Route::post('{ticket}/delegations/{delegation}/approve', [TicketDelegationController::class, 'approve'])->name('delegations.approve');
@@ -103,6 +111,12 @@ Route::prefix('admin')->name('admin.')
 
         Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
+
+        Route::resource('host-credentials', HostCredentialController::class)
+            ->only(['index', 'store', 'update', 'destroy']);
+        Route::post('host-credentials/{hostCredential}/reveal-password', [HostCredentialController::class, 'revealPassword'])
+            ->middleware('throttle:20,1')
+            ->name('host-credentials.reveal-password');
 
         // Default assignee (who every new ticket falls to) — Admin / Super Admin.
         Route::middleware('permission:settings.manage')->group(function () {

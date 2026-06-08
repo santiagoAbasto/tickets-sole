@@ -36,9 +36,15 @@
              data-endpoint="{{ route('public.track.messages') }}"
              data-last-message-id="{{ $lastMessageId }}"
              data-customer-name="Vos">
-            @foreach ($ticket['messages'] as $m)
+            @forelse ($ticket['messages'] as $m)
                 <x-ticket.message :item="$m" customer-name="Vos" />
-            @endforeach
+            @empty
+                <div class="flex flex-col items-center gap-2 py-8 text-center">
+                    <span class="flex h-11 w-11 items-center justify-center rounded-full bg-slate-100 text-slate-400"><i data-lucide="messages-square" class="h-5 w-5"></i></span>
+                    <p class="text-sm font-medium text-slate-600">Todavía no hay respuestas</p>
+                    <p class="max-w-xs text-xs leading-5 text-slate-400">Cuando el equipo te responda lo vas a ver acá. Si querés, escribí abajo para sumar información a tu consulta.</p>
+                </div>
+            @endforelse
         </div>
 
         {{-- Reply --}}

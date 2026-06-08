@@ -54,7 +54,7 @@ class PublicTicketController extends Controller
 
             // Prepend the referenced website to the description when provided.
             $body = filled($data['site_url'] ?? null)
-                ? "🌐 Sitio web: {$data['site_url']}\n\n{$data['description']}"
+                ? "Sitio web: {$data['site_url']}\n\n{$data['description']}"
                 : $data['description'];
 
             $ticket = new Ticket([
@@ -88,9 +88,10 @@ class PublicTicketController extends Controller
 
         $this->notifier->ticketCreated($ticket);
 
+        session(['tracked_ticket_id' => $ticket->id]);
+
         return redirect()
-            ->route('public.support.thanks')
-            ->with('ticket_code', $ticket->code);
+            ->route('public.track.show');
     }
 
     public function thanks(): View|RedirectResponse
@@ -133,6 +134,19 @@ class PublicTicketController extends Controller
             return back()->withInput()->with('error', 'No encontramos un ticket con ese código y email. Revisá los datos.');
         }
 
+        session(['tracked_ticket_id' => $ticket->id]);
+
+        return redirect()->route('public.track.show');
+    }
+
+    /**
+     * Open a ticket's chat directly from a signed share link — no code/email.
+     * The `signed` middleware validates the HMAC before we get here, so the
+     * ticket id in the URL is trusted; we just unlock it in the session and
+     * reuse the normal tracking screen (view + reply + realtime).
+     */
+    public function direct(Ticket $ticket): RedirectResponse
+    {
         session(['tracked_ticket_id' => $ticket->id]);
 
         return redirect()->route('public.track.show');

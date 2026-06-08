@@ -1,10 +1,19 @@
 @props([
     'name' => 'attachments[]',
     'accept' => 'image/*,.pdf,.doc,.docx,.xls,.xlsx,.zip',
+    'compact' => false,
 ])
 <div x-data="uploader" @chat-reset.window="reset($refs.input)">
-    <label class="group flex cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-slate-300 px-4 py-5 text-center text-sm text-slate-500 transition hover:border-brand-400 hover:bg-brand-50/40">
-        <i data-lucide="image-up" class="h-5 w-5 text-slate-400 transition-colors group-hover:text-brand-500"></i>
+    <label @class([
+        'group flex cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-slate-300 px-4 text-center text-sm text-slate-500 transition hover:border-brand-400 hover:bg-brand-50/40',
+        'py-3' => $compact,
+        'py-5' => ! $compact,
+    ])>
+        <i data-lucide="image-up" @class([
+            'text-slate-400 transition-colors group-hover:text-brand-500',
+            'h-4 w-4' => $compact,
+            'h-5 w-5' => ! $compact,
+        ])></i>
         <span>Arrastrá o <span class="font-medium text-brand-600">elegí archivos</span></span>
         <span class="text-xs text-slate-400">Imágenes y documentos · máx. 10 MB c/u</span>
         <input x-ref="input" type="file" name="{{ $name }}" multiple accept="{{ $accept }}" class="hidden" @change="add($event)">
@@ -14,10 +23,10 @@
         <template x-for="(it, i) in items" :key="i">
             <div class="group/item relative overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
                 <template x-if="it.isImage">
-                    <img :src="it.url" :alt="it.name" class="h-24 w-full object-cover">
+                    <img :src="it.url" :alt="it.name" class="{{ $compact ? 'h-16' : 'h-24' }} w-full object-cover">
                 </template>
                 <template x-if="!it.isImage">
-                    <div class="flex h-24 w-full flex-col items-center justify-center gap-1 px-2 text-center">
+                    <div class="flex {{ $compact ? 'h-16' : 'h-24' }} w-full flex-col items-center justify-center gap-1 px-2 text-center">
                         <i data-lucide="file-text" class="h-6 w-6 text-slate-400"></i>
                     </div>
                 </template>

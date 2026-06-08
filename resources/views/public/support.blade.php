@@ -7,28 +7,22 @@
         <div class="support-beam pointer-events-none absolute inset-x-0 top-0 z-0 h-px"></div>
         <div class="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_18%_18%,rgba(20,184,166,.24),transparent_32%),radial-gradient(circle_at_78%_20%,rgba(79,70,229,.34),transparent_34%),radial-gradient(circle_at_82%_78%,rgba(249,115,22,.14),transparent_28%),linear-gradient(180deg,rgba(11,18,32,.22),#0b1220_86%)]"></div>
 
-        <div class="relative z-10 mx-auto grid min-h-[calc(100dvh-72px)] max-w-[1224px] items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1.02fr_0.98fr] lg:py-20 xl:px-0">
-            <div class="max-w-2xl">
+        <div class="relative z-10 mx-auto grid min-h-[calc(100dvh-72px)] max-w-[1224px] items-start gap-8 px-4 py-5 sm:px-6 lg:grid-cols-[0.82fr_1.18fr] lg:gap-10 lg:py-6 xl:px-0">
+            <div class="order-2 max-w-2xl self-center lg:order-1">
                 <div class="animate-rise inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1.5 text-sm font-medium text-cyan-100 shadow-2xl shadow-brand-950/30 backdrop-blur">
                     <span class="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_18px_rgba(52,211,153,.85)]"></span>
                     Soporte con seguimiento real
                 </div>
 
-                <h1 class="animate-rise mt-7 max-w-[12ch] text-5xl font-semibold leading-[0.95] tracking-tight text-white [animation-delay:80ms] [text-wrap:balance] sm:text-6xl lg:text-7xl">
-                    Soporte que no pierde el hilo.
+                <h1 class="animate-rise mt-6 max-w-xl text-4xl font-semibold leading-tight tracking-tight text-white [animation-delay:80ms] [text-wrap:balance] sm:text-5xl">
+                    Abrí tu ticket y entrá al chat.
                 </h1>
 
-                <p class="animate-rise mt-6 max-w-xl text-base leading-8 text-slate-100 [animation-delay:150ms] [text-wrap:pretty] sm:text-lg">
-                    Abrí un ticket con capturas, enlaces y contexto desde el primer mensaje. Osole lo convierte en una conversación trazable, con código propio y respuesta por email.
+                <p class="animate-rise mt-5 max-w-xl text-base leading-8 text-slate-100 [animation-delay:150ms] [text-wrap:pretty] sm:text-lg">
+                    Completá el formulario, adjuntá lo importante y quedás dentro del chat del caso al instante. El equipo sigue la conversación desde un único hilo.
                 </p>
 
-                <div class="animate-rise mt-9 flex flex-col gap-3 [animation-delay:220ms] sm:flex-row">
-                    <a href="#form"
-                       class="group inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-500 via-sky-500 to-cyan-400 px-5 py-3 text-sm font-semibold text-white shadow-2xl shadow-sky-950/40 transition hover:-translate-y-0.5 hover:saturate-125 focus:outline-none focus:ring-2 focus:ring-cyan-200 focus:ring-offset-2 focus:ring-offset-sidebar">
-                        <i data-lucide="message-square-plus" class="h-4 w-4"></i>
-                        Enviar consulta
-                        <i data-lucide="arrow-down" class="h-4 w-4 transition-transform group-hover:translate-y-0.5"></i>
-                    </a>
+                <div class="animate-rise mt-7 flex flex-col gap-3 [animation-delay:220ms] sm:flex-row">
                     <a href="{{ route('public.track.form') }}"
                        class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-cyan-200/20 bg-white/10 px-5 py-3 text-sm font-semibold text-white shadow-xl shadow-black/20 backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/16 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-sidebar">
                         <i data-lucide="search-check" class="h-4 w-4 text-brand-200"></i>
@@ -36,14 +30,14 @@
                     </a>
                 </div>
 
-                <div class="mt-10 grid max-w-xl grid-cols-3 divide-x divide-cyan-100/10 border-y border-cyan-100/15 text-sm">
+                <div class="mt-7 grid max-w-xl grid-cols-3 divide-x divide-cyan-100/10 border-y border-cyan-100/15 text-sm">
                     <div class="py-4 pr-4">
                         <span class="block text-2xl font-semibold text-cyan-100">3 min</span>
                         <span class="mt-1 block text-xs leading-5 text-slate-300">para dejar el caso claro</span>
                     </div>
                     <div class="px-4 py-4">
-                        <span class="block text-2xl font-semibold text-cyan-100">24 h</span>
-                        <span class="mt-1 block text-xs leading-5 text-slate-300">respuesta habitual hábil</span>
+                        <span class="block text-2xl font-semibold text-cyan-100">Hábil</span>
+                        <span class="mt-1 block text-xs leading-5 text-slate-300">respuesta según prioridad</span>
                     </div>
                     <div class="py-4 pl-4">
                         <span class="block text-2xl font-semibold text-cyan-100">1 código</span>
@@ -52,60 +46,99 @@
                 </div>
             </div>
 
-            <div class="support-stage animate-rise relative [animation-delay:130ms]">
+            <div id="form" class="order-1 animate-rise relative [animation-delay:130ms] lg:order-2">
                 <div class="support-ring support-ring-one" aria-hidden="true"></div>
                 <div class="support-ring support-ring-two" aria-hidden="true"></div>
-                <div class="support-node support-node-a" aria-hidden="true"><i data-lucide="mail-check" class="h-4 w-4"></i></div>
-                <div class="support-node support-node-b" aria-hidden="true"><i data-lucide="paperclip" class="h-4 w-4"></i></div>
-                <div class="support-node support-node-c" aria-hidden="true"><i data-lucide="scan-search" class="h-4 w-4"></i></div>
-                <div class="absolute -inset-4 rounded-[2rem] border border-white/10 opacity-60" :style="panel(0.7)"></div>
-                <div class="support-card-3d relative overflow-hidden rounded-[1.75rem] border border-cyan-100/20 bg-slate-950/55 shadow-2xl shadow-black/40 backdrop-blur-xl" :style="panel(1)">
-                    <div class="flex items-center justify-between border-b border-white/10 px-5 py-4">
+                <div class="support-node support-node-a hidden motion-reduce:hidden lg:flex" aria-hidden="true"><i data-lucide="mail-check" class="h-4 w-4"></i></div>
+                <div class="support-node support-node-b hidden motion-reduce:hidden lg:flex" aria-hidden="true"><i data-lucide="paperclip" class="h-4 w-4"></i></div>
+                <div class="support-node support-node-c hidden motion-reduce:hidden lg:flex" aria-hidden="true"><i data-lucide="message-circle" class="h-4 w-4"></i></div>
+
+                <form method="POST" action="{{ route('public.support.store') }}" enctype="multipart/form-data"
+                      class="relative z-10 overflow-hidden rounded-2xl border border-cyan-100/20 bg-white p-4 text-slate-700 shadow-2xl shadow-black/35 sm:p-5"
+                      x-data="{ sending: false }"
+                      @submit="sending = true">
+                    @csrf
+
+                    <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-brand-500 via-sky-500 to-emerald-400"></div>
+
+                    <div class="mb-4 flex flex-col gap-2 border-b border-slate-200 pb-3 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <p class="text-sm font-semibold text-white">Centro de soporte</p>
-                            <p class="mt-0.5 text-xs text-slate-400">Vista previa del flujo</p>
+                            <p class="text-sm font-semibold text-brand-700">Nuevo ticket</p>
+                            <h2 class="text-2xl font-semibold tracking-tight text-slate-950">Contanos qué pasó</h2>
                         </div>
-                        <span class="inline-flex items-center gap-2 rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-medium text-emerald-200 ring-1 ring-emerald-300/20">
-                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-300"></span>
-                            Online
+                        <span class="inline-flex w-fit items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200">
+                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                            Entrás al chat al enviar
                         </span>
                     </div>
 
-                    <div class="space-y-3 p-5">
-                        <div class="rounded-2xl border border-white/10 bg-white/8 p-4">
-                            <div class="flex items-start justify-between gap-4">
-                                <div>
-                                    <p class="font-mono text-xs text-brand-200">TK-2026-000128</p>
-                                    <h2 class="mt-2 text-lg font-semibold tracking-tight text-white">No puedo acceder al panel</h2>
-                                </div>
-                                <span class="rounded-full bg-amber-400/12 px-3 py-1 text-xs font-medium text-amber-200 ring-1 ring-amber-300/20">En proceso</span>
-                            </div>
-                            <div class="mt-5 grid grid-cols-3 gap-2 text-xs text-slate-300">
-                                <span class="rounded-xl bg-white/7 px-3 py-2"><span class="block text-slate-500">Categoría</span>Sistema</span>
-                                <span class="rounded-xl bg-white/7 px-3 py-2"><span class="block text-slate-500">Adjuntos</span>2 archivos</span>
-                                <span class="rounded-xl bg-white/7 px-3 py-2"><span class="block text-slate-500">Agente</span>Asignado</span>
-                            </div>
-                        </div>
+                    <div aria-hidden="true" style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;">
+                        <label>No completar este campo<input type="text" name="company_fax" tabindex="-1" autocomplete="off"></label>
+                    </div>
 
-                        <div class="grid grid-cols-[2.5rem_1fr] gap-3 rounded-2xl border border-white/10 bg-slate-950/35 p-4">
-                            <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-500 text-sm font-bold text-white">OS</span>
-                            <div>
-                                <p class="text-sm font-medium text-white">Soporte Osole</p>
-                                <p class="mt-1 text-sm leading-6 text-slate-300">Recibimos tu caso. Revisamos los accesos y te respondemos por email.</p>
-                            </div>
+                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <div>
+                            <label for="name" class="label">Nombre <span class="text-rose-500">*</span></label>
+                            <input id="name" name="name" value="{{ old('name') }}" class="input" placeholder="Tu nombre" @error('name') aria-invalid="true" @enderror>
+                            @error('name')<p class="mt-1.5 text-sm text-rose-600">{{ $message }}</p>@enderror
                         </div>
-
-                        <div class="rounded-2xl border border-dashed border-white/15 p-4">
-                            <div class="flex items-center gap-3">
-                                <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/8 text-brand-200"><i data-lucide="paperclip" class="h-5 w-5"></i></span>
-                                <div>
-                                    <p class="text-sm font-medium text-white">Capturas y datos técnicos</p>
-                                    <p class="text-xs text-slate-400">Llegan junto al ticket, no en mensajes sueltos.</p>
-                                </div>
-                            </div>
+                        <div>
+                            <label for="email" class="label">Email <span class="text-rose-500">*</span></label>
+                            <input id="email" type="email" name="email" value="{{ old('email') }}" class="input" placeholder="vos@email.com" @error('email') aria-invalid="true" @enderror>
+                            @error('email')<p class="mt-1.5 text-sm text-rose-600">{{ $message }}</p>@enderror
+                        </div>
+                        <div>
+                            <label for="phone" class="label">Teléfono <span class="text-slate-400">(opcional)</span></label>
+                            <input id="phone" name="phone" value="{{ old('phone') }}" class="input" placeholder="+54 ...">
+                        </div>
+                        <div>
+                            <label for="category_id" class="label">Categoría <span class="text-rose-500">*</span></label>
+                            <select id="category_id" name="category_id" class="select" @error('category_id') aria-invalid="true" @enderror>
+                                <option value="">Elegí una opción...</option>
+                                @foreach ($categories as $c)<option value="{{ $c['id'] }}" @selected(old('category_id') == $c['id'])>{{ $c['name'] }}</option>@endforeach
+                            </select>
+                            @error('category_id')<p class="mt-1.5 text-sm text-rose-600">{{ $message }}</p>@enderror
                         </div>
                     </div>
-                </div>
+
+                    <div class="mt-3">
+                        <label for="site_url" class="label">Sitio web / sistema <span class="text-slate-400">(opcional)</span></label>
+                        <div class="relative">
+                            <i data-lucide="globe" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"></i>
+                            <input id="site_url" name="site_url" value="{{ old('site_url') }}" class="input pl-9" placeholder="https://tusitio.com o sistema afectado">
+                        </div>
+                        @error('site_url')<p class="mt-1.5 text-sm text-rose-600">{{ $message }}</p>@enderror
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="subject" class="label">Asunto <span class="text-rose-500">*</span></label>
+                        <input id="subject" name="subject" value="{{ old('subject') }}" class="input" placeholder="Ej. No puedo acceder al panel" @error('subject') aria-invalid="true" @enderror>
+                        @error('subject')<p class="mt-1.5 text-sm text-rose-600">{{ $message }}</p>@enderror
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="description" class="label">Qué está pasando <span class="text-rose-500">*</span></label>
+                        <textarea id="description" name="description" rows="4" class="textarea" placeholder="Contanos qué ocurre, qué esperabas ver y desde cuándo pasa." @error('description') aria-invalid="true" @enderror>{{ old('description') }}</textarea>
+                        @error('description')<p class="mt-1.5 text-sm text-rose-600">{{ $message }}</p>@enderror
+                    </div>
+
+                    <div class="mt-3">
+                        <label class="label">Adjuntos <span class="text-slate-400">(opcional)</span></label>
+                        <x-attachment-input compact />
+                        @error('attachments.0')<p class="mt-1.5 text-sm text-rose-600">{{ $message }}</p>@enderror
+                    </div>
+
+                    <div class="mt-4 flex flex-col-reverse items-stretch justify-between gap-3 border-t border-slate-200 pt-4 sm:flex-row sm:items-center">
+                        <p class="flex items-center gap-2 text-sm leading-6 text-slate-500"><i data-lucide="lock" class="h-4 w-4 text-emerald-600"></i> Tus datos solo se usan para responderte.</p>
+                        <button type="submit"
+                                :disabled="sending"
+                                class="group inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-brand-600/25 transition hover:-translate-y-0.5 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto">
+                            <i data-lucide="send" class="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" x-show="!sending"></i>
+                            <i data-lucide="loader-2" class="h-4 w-4 animate-spin" x-show="sending" x-cloak></i>
+                            <span x-text="sending ? 'Enviando...' : 'Enviar y abrir chat'"></span>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </section>
@@ -162,108 +195,6 @@
                     </div>
                 </article>
             @endforeach
-        </div>
-    </section>
-
-    <section id="form" class="relative overflow-hidden bg-canvas py-20 sm:py-24">
-        <div class="support-section-line pointer-events-none absolute inset-x-0 top-0 h-px"></div>
-        <div class="mx-auto grid max-w-[1224px] gap-10 px-4 sm:px-6 lg:grid-cols-[0.78fr_1.22fr] xl:px-0">
-            <aside class="lg:sticky lg:top-28 lg:self-start">
-                <p class="text-sm font-semibold text-brand-700">Abrí un ticket</p>
-                <h2 class="mt-3 text-3xl font-semibold tracking-tight text-slate-950 [text-wrap:balance] sm:text-4xl">Dejá el problema listo para resolver.</h2>
-                <p class="mt-4 max-w-md text-base leading-7 text-slate-600">Incluí qué intentaste, dónde ocurre y qué esperabas ver. Si tenés captura, archivo o enlace, adjuntalo.</p>
-
-                <div class="mt-8 space-y-4 border-l border-slate-200 pl-5">
-                    <div>
-                        <p class="text-sm font-semibold text-slate-900">Prioridad inicial</p>
-                        <p class="mt-1 text-sm leading-6 text-slate-500">El equipo clasifica el caso al recibirlo y lo asigna al área correcta.</p>
-                    </div>
-                    <div>
-                        <p class="text-sm font-semibold text-slate-900">Historial completo</p>
-                        <p class="mt-1 text-sm leading-6 text-slate-500">Tus mensajes y adjuntos quedan en el mismo hilo de atención.</p>
-                    </div>
-                </div>
-            </aside>
-
-            <div>
-                @if ($errors->any())
-                    <div role="alert" class="mb-5 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 shadow-sm">
-                        <p class="flex items-center gap-2 font-medium"><i data-lucide="alert-circle" class="h-4 w-4"></i> Revisá estos campos:</p>
-                        <ul class="mt-1.5 list-inside list-disc space-y-0.5 text-rose-600">
-                            @foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach
-                        </ul>
-                    </div>
-                @endif
-
-                <form method="POST" action="{{ route('public.support.store') }}" enctype="multipart/form-data"
-                      class="rounded-[1.5rem] border border-slate-200 bg-surface p-5 shadow-2xl shadow-slate-950/[.07] sm:p-8">
-                    @csrf
-
-                    <div aria-hidden="true" style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;">
-                        <label>No completar este campo<input type="text" name="company_fax" tabindex="-1" autocomplete="off"></label>
-                    </div>
-
-                    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                        <div>
-                            <label for="name" class="label">Nombre <span class="text-rose-500">*</span></label>
-                            <input id="name" name="name" value="{{ old('name') }}" class="input" placeholder="Tu nombre" @error('name') aria-invalid="true" @enderror>
-                            @error('name')<p class="mt-1.5 text-sm text-rose-600">{{ $message }}</p>@enderror
-                        </div>
-                        <div>
-                            <label for="email" class="label">Email <span class="text-rose-500">*</span></label>
-                            <input id="email" type="email" name="email" value="{{ old('email') }}" class="input" placeholder="vos@email.com" @error('email') aria-invalid="true" @enderror>
-                            @error('email')<p class="mt-1.5 text-sm text-rose-600">{{ $message }}</p>@enderror
-                        </div>
-                        <div>
-                            <label for="phone" class="label">Teléfono <span class="text-slate-400">(opcional)</span></label>
-                            <input id="phone" name="phone" value="{{ old('phone') }}" class="input" placeholder="+54 ...">
-                        </div>
-                        <div>
-                            <label for="category_id" class="label">Categoría <span class="text-rose-500">*</span></label>
-                            <select id="category_id" name="category_id" class="select">
-                                <option value="">Elegí una opción...</option>
-                                @foreach ($categories as $c)<option value="{{ $c['id'] }}" @selected(old('category_id') == $c['id'])>{{ $c['name'] }}</option>@endforeach
-                            </select>
-                            @error('category_id')<p class="mt-1.5 text-sm text-rose-600">{{ $message }}</p>@enderror
-                        </div>
-                    </div>
-
-                    <div class="mt-5">
-                        <label for="site_url" class="label">Sitio web / sistema <span class="text-slate-400">(opcional)</span></label>
-                        <div class="relative">
-                            <i data-lucide="globe" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"></i>
-                            <input id="site_url" name="site_url" value="{{ old('site_url') }}" class="input pl-9" placeholder="https://tusitio.com o el sistema afectado">
-                        </div>
-                        @error('site_url')<p class="mt-1.5 text-sm text-rose-600">{{ $message }}</p>@enderror
-                    </div>
-
-                    <div class="mt-5">
-                        <label for="subject" class="label">Asunto <span class="text-rose-500">*</span></label>
-                        <input id="subject" name="subject" value="{{ old('subject') }}" class="input" placeholder="Ej. No puedo acceder a mi correo" @error('subject') aria-invalid="true" @enderror>
-                        @error('subject')<p class="mt-1.5 text-sm text-rose-600">{{ $message }}</p>@enderror
-                    </div>
-
-                    <div class="mt-5">
-                        <label for="description" class="label">Qué está pasando <span class="text-rose-500">*</span></label>
-                        <textarea id="description" name="description" rows="6" class="textarea" placeholder="Contanos con detalle qué ocurre, qué esperabas y desde cuándo pasa." @error('description') aria-invalid="true" @enderror>{{ old('description') }}</textarea>
-                        @error('description')<p class="mt-1.5 text-sm text-rose-600">{{ $message }}</p>@enderror
-                    </div>
-
-                    <div class="mt-5">
-                        <label class="label">Adjuntos <span class="text-slate-400">(opcional)</span></label>
-                        <x-attachment-input />
-                        @error('attachments.0')<p class="mt-1.5 text-sm text-rose-600">{{ $message }}</p>@enderror
-                    </div>
-
-                    <div class="mt-7 flex flex-col-reverse items-stretch justify-between gap-4 border-t border-slate-200 pt-6 sm:flex-row sm:items-center">
-                        <p class="flex items-center gap-2 text-sm leading-6 text-slate-500"><i data-lucide="lock" class="h-4 w-4 text-emerald-600"></i> Tus datos solo se usan para responderte.</p>
-                        <button type="submit" class="group inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-brand-600/25 transition hover:-translate-y-0.5 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 sm:w-auto">
-                            <i data-lucide="send" class="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"></i>
-                            Enviar consulta
-                        </button>
-                    </div>
-                </form>
-            </div>
         </div>
     </section>
 

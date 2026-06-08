@@ -10,6 +10,7 @@ use App\Http\Requests\StoreTicketRequest;
 use App\Http\Requests\UpdateTicketRequest;
 use App\Models\Customer;
 use App\Models\Department;
+use App\Models\HostCredential;
 use App\Models\SiteSetting;
 use App\Models\Ticket;
 use App\Models\TicketCategory;
@@ -146,7 +147,9 @@ class TicketController extends Controller
             return;
         }
 
-        $ticket->credentials()->create($fields);
+        $credential = $ticket->credentials()->create($fields);
+
+        HostCredential::syncFromTicketCredential($credential, request()->user());
     }
 
     public function show(Ticket $ticket): View
@@ -170,10 +173,18 @@ class TicketController extends Controller
         $user = request()->user();
         $canNotify = $user->can('notifyCustomer', $ticket);
         $pending = $isStaff ? $ticket->pendingDelegation : null;
+        $hostCredentials = $isStaff
+            ? HostCredential::query()
+                ->visibleTo($user)
+                ->latest()
+                ->limit(100)
+                ->get(['id', 'name', 'website_url', 'server_url', 'hosting_provider', 'cpanel_user'])
+            : collect();
 
         return view('admin.tickets.show', [
             'ticket' => $this->transformDetail($ticket, $isStaff),
             'options' => $this->formOptions(),
+            'hostCredentials' => $hostCredentials,
             'whatsapp' => $canNotify
                 ? app(WhatsappTemplateService::class)->resolve($ticket, $user)
                 : null,
@@ -196,6 +207,7 @@ class TicketController extends Controller
                 'delegate' => $user->can('delegate', $ticket),
                 'reviewDelegation' => $user->can('reviewDelegation', $ticket),
                 'claim' => $user->can('claim', $ticket),
+                'delete' => $user->can('delete', $ticket),
             ],
         ]);
     }
@@ -433,7 +445,7 @@ class TicketController extends Controller
             ]) : [],
             'credentials' => ($isStaff && $t->credentials) ? [
                 'cpanel_user' => $t->credentials->cpanel_user,
-                'cpanel_password' => $t->credentials->cpanel_password,
+                'has_password' => filled($t->credentials->cpanel_password),
                 'server_url' => $t->credentials->server_url,
                 'hosting_type' => $t->credentials->hosting_type,
                 'hosting_provider' => $t->credentials->hosting_provider,

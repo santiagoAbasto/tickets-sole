@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Customer;
+use App\Models\HostCredential;
 use App\Models\Ticket;
 use App\Models\TicketCategory;
 use App\Models\TicketPriority;
@@ -126,5 +127,95 @@ class TicketCredentialTest extends TestCase
         $this->actingAs($cliente)
             ->put(route('admin.tickets.credentials.update', $ticket), ['cpanel_user' => 'x'])
             ->assertForbidden();
+    }
+
+    public function test_staff_can_link_a_visible_host_to_ticket_credentials(): void
+    {
+        $agent = $this->staff('Agente');
+        $ticket = $this->makeTicket();
+        $host = HostCredential::create([
+            'created_by' => $agent->id,
+            'fingerprint' => HostCredential::fingerprintFor([
+                'server_url' => 'https://panel.example.com:2083',
+                'cpanel_user' => 'cliente',
+                'hosting_provider' => 'cPanel',
+            ]),
+            'name' => 'Cliente web',
+            'server_url' => 'https://panel.example.com:2083',
+            'hosting_type' => 'external',
+            'hosting_provider' => 'cPanel',
+            'cpanel_user' => 'cliente',
+            'cpanel_password' => 'secret',
+            'notes' => 'Acceso principal',
+        ]);
+
+        $this->actingAs($agent)
+            ->post(route('admin.tickets.credentials.link-host', $ticket), [
+                'host_credential_id' => $host->id,
+            ])
+            ->assertRedirect();
+
+        $credential = $ticket->credentials()->firstOrFail();
+        $this->assertSame('https://panel.example.com:2083', $credential->server_url);
+        $this->assertSame('cliente', $credential->cpanel_user);
+        $this->assertSame('secret', $credential->cpanel_password);
+        $this->assertSame('Acceso principal', $credential->notes);
+    }
+
+    public function test_ticket_show_does_not_render_plaintext_password_and_reveals_it_with_permission(): void
+    {
+        $agent = $this->staff('Agente');
+        $ticket = $this->makeTicket();
+        $ticket->credentials()->create([
+            'cpanel_user' => 'cliente',
+            'cpanel_password' => 'super-secret-ticket',
+            'server_url' => 'https://panel.example.com',
+        ]);
+
+        $this->actingAs($agent)
+            ->get(route('admin.tickets.show', $ticket))
+            ->assertOk()
+            ->assertDontSee('super-secret-ticket', false);
+
+        $this->actingAs($agent)
+            ->postJson(route('admin.tickets.credentials.reveal-password', $ticket))
+            ->assertOk()
+            ->assertJson(['password' => 'super-secret-ticket']);
+    }
+
+    public function test_ticket_credentials_reject_non_http_urls(): void
+    {
+        $ticket = $this->makeTicket();
+
+        $this->actingAs($this->staff('Agente'))
+            ->put(route('admin.tickets.credentials.update', $ticket), [
+                'server_url' => 'javascript:alert(1)',
+            ])
+            ->assertSessionHasErrors('server_url');
+    }
+
+    public function test_agent_cannot_link_another_agents_host(): void
+    {
+        $agent = $this->staff('Agente');
+        $other = $this->staff('Agente');
+        $ticket = $this->makeTicket();
+        $host = HostCredential::create([
+            'created_by' => $other->id,
+            'fingerprint' => HostCredential::fingerprintFor([
+                'server_url' => 'https://private.example.com',
+                'cpanel_user' => 'private',
+            ]),
+            'name' => 'Privado',
+            'server_url' => 'https://private.example.com',
+            'cpanel_user' => 'private',
+        ]);
+
+        $this->actingAs($agent)
+            ->post(route('admin.tickets.credentials.link-host', $ticket), [
+                'host_credential_id' => $host->id,
+            ])
+            ->assertNotFound();
+
+        $this->assertDatabaseCount('ticket_credentials', 0);
     }
 }

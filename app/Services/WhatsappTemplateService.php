@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Support\Whatsapp;
+use Illuminate\Support\Facades\URL;
 
 /**
  * Resolves the WhatsApp payload for a ticket: the customer's normalized number
@@ -22,7 +23,8 @@ class WhatsappTemplateService
 
         $phone = $customer?->phone;
         $normalized = Whatsapp::normalize($phone);
-        $trackUrl = route('public.track.form');
+        // Direct signed link → the customer opens their chat with one tap.
+        $trackUrl = URL::signedRoute('public.track.direct', ['ticket' => $ticket->id]);
 
         $vars = [
             '{cliente}' => $this->firstName($customer?->name),

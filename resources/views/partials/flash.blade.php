@@ -7,7 +7,7 @@
 @endphp
 
 @if ($flashes->isNotEmpty())
-    <div class="pointer-events-none fixed right-4 top-4 z-[1000] flex w-full max-w-sm flex-col gap-2">
+    <div class="pointer-events-none fixed inset-x-4 top-24 z-[1000] flex flex-col gap-2 sm:inset-x-auto sm:right-6 sm:w-full sm:max-w-sm">
         @foreach ($flashes as $f)
             <div
                 x-data="{ show: false }"
@@ -19,7 +19,7 @@
                 x-transition:leave="transition ease-in duration-150"
                 x-transition:leave-end="opacity-0 translate-x-4"
                 class="pointer-events-auto flex items-start gap-3 rounded-xl bg-white px-4 py-3 text-sm text-slate-700 shadow-lg ring-1 ring-slate-900/5"
-                role="status"
+                role="{{ $f['type'] === 'error' ? 'alert' : 'status' }}"
             >
                 <i data-lucide="{{ $f['icon'] }}" class="mt-0.5 h-5 w-5 shrink-0 {{ $f['color'] }}"></i>
                 <p class="flex-1">{{ $f['msg'] }}</p>
