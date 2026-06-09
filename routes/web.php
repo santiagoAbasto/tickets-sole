@@ -99,6 +99,7 @@ Route::prefix('admin')->name('admin.')
             Route::post('{ticket}/credentials/link-host', [TicketCredentialController::class, 'linkHost'])->name('credentials.link-host');
             // Delegation workflow: assignee requests → Super Admin/Admin reviews.
             Route::post('{ticket}/delegations', [TicketDelegationController::class, 'store'])->name('delegations.store');
+            Route::get('{ticket}/delegations/{delegation}/approve', [TicketDelegationController::class, 'reviewFromLink'])->name('delegations.review');
             Route::post('{ticket}/delegations/{delegation}/approve', [TicketDelegationController::class, 'approve'])->name('delegations.approve');
             Route::post('{ticket}/delegations/{delegation}/reject', [TicketDelegationController::class, 'reject'])->name('delegations.reject');
             Route::delete('{ticket}/delegations/{delegation}', [TicketDelegationController::class, 'cancel'])->name('delegations.cancel');

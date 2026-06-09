@@ -38,46 +38,138 @@ class TicketDelegationController extends Controller
     }
 
     /** Super Admin / Admin approves: the ticket is reassigned to the requested agent. */
-    public function approve(Request $request, Ticket $ticket, TicketDelegationRequest $delegation): RedirectResponse
+    public function reviewFromLink(Request $request, string $ticket, string $delegation): RedirectResponse
     {
-        $this->authorize('reviewDelegation', $ticket);
-        $this->assertBelongsAndPending($ticket, $delegation);
+        $delegationRequest = TicketDelegationRequest::find($delegation);
 
-        DB::transaction(function () use ($ticket, $delegation, $request) {
-            $ticket->loadMissing('assignee');
-            $from = $ticket->assignee?->name ?? 'Sin asignar';
-            $to = $delegation->target->name;
+        if ($delegationRequest) {
+            $actualTicket = $delegationRequest->ticket()->first();
 
-            $ticket->forceFill(['assigned_to' => $delegation->requested_to])->save();
-            $ticket->markActivity();
+            if ($actualTicket) {
+                $this->authorize('reviewDelegation', $actualTicket);
 
-            $delegation->update([
+                $message = (string) $delegationRequest->ticket_id === $ticket
+                    ? 'Para aprobar la delegación usá el botón "Aprobar" dentro del ticket.'
+                    : 'La delegación pertenece a otro ticket. Te llevamos al ticket correcto para revisarla.';
+
+                return redirect()
+                    ->route('admin.tickets.show', $actualTicket)
+                    ->with('info', $message);
+            }
+        }
+
+        $requestedTicket = Ticket::find($ticket);
+
+        if ($requestedTicket) {
+            $this->authorize('reviewDelegation', $requestedTicket);
+
+            return redirect()
+                ->route('admin.tickets.show', $requestedTicket)
+                ->with('error', 'La solicitud de delegación ya no existe o ya fue procesada.');
+        }
+
+        abort_unless($request->user()->hasPermissionTo('tickets.assign'), 403);
+
+        return redirect()
+            ->route('admin.tickets.dashboard')
+            ->with('error', 'El ticket o la solicitud de delegación ya no existen.');
+    }
+
+    /** Super Admin / Admin approves: the ticket is reassigned to the requested agent. */
+    public function approve(Request $request, Ticket $ticket, string $delegation): RedirectResponse
+    {
+        $delegationRequest = TicketDelegationRequest::find($delegation);
+
+        if (! $delegationRequest) {
+            $this->authorize('reviewDelegation', $ticket);
+
+            return redirect()
+                ->route('admin.tickets.show', $ticket)
+                ->with('error', 'La solicitud de delegación ya no existe o ya fue procesada.');
+        }
+
+        $actualTicket = $delegationRequest->ticket()->first();
+
+        if (! $actualTicket) {
+            $this->authorize('reviewDelegation', $ticket);
+
+            return redirect()
+                ->route('admin.tickets.show', $ticket)
+                ->with('error', 'La solicitud de delegación ya no existe o ya fue procesada.');
+        }
+
+        $this->authorize('reviewDelegation', $actualTicket);
+
+        if ($delegationRequest->status !== TicketDelegationRequest::STATUS_PENDING) {
+            return redirect()
+                ->route('admin.tickets.show', $actualTicket)
+                ->with('error', 'La solicitud de delegación ya fue procesada.');
+        }
+
+        DB::transaction(function () use ($actualTicket, $delegationRequest, $request) {
+            $actualTicket->loadMissing('assignee');
+            $from = $actualTicket->assignee?->name ?? 'Sin asignar';
+            $to = $delegationRequest->target->name;
+
+            $actualTicket->forceFill(['assigned_to' => $delegationRequest->requested_to])->save();
+            $actualTicket->markActivity();
+
+            $delegationRequest->update([
                 'status' => TicketDelegationRequest::STATUS_APPROVED,
                 'reviewed_by' => $request->user()->id,
                 'reviewed_at' => now(),
             ]);
 
-            $this->logger->delegationApproved($ticket, $from, $to, $request->user());
+            $this->logger->delegationApproved($actualTicket, $from, $to, $request->user());
         });
 
-        return back()->with('success', 'Delegación aprobada. El ticket se reasignó.');
+        return redirect()
+            ->route('admin.tickets.show', $actualTicket)
+            ->with('success', 'Delegación aprobada. El ticket se reasignó.');
     }
 
     /** Super Admin / Admin rejects the request. */
-    public function reject(Request $request, Ticket $ticket, TicketDelegationRequest $delegation): RedirectResponse
+    public function reject(Request $request, Ticket $ticket, string $delegation): RedirectResponse
     {
-        $this->authorize('reviewDelegation', $ticket);
-        $this->assertBelongsAndPending($ticket, $delegation);
+        $delegationRequest = TicketDelegationRequest::find($delegation);
 
-        $delegation->update([
+        if (! $delegationRequest) {
+            $this->authorize('reviewDelegation', $ticket);
+
+            return redirect()
+                ->route('admin.tickets.show', $ticket)
+                ->with('error', 'La solicitud de delegación ya no existe o ya fue procesada.');
+        }
+
+        $actualTicket = $delegationRequest->ticket()->first();
+
+        if (! $actualTicket) {
+            $this->authorize('reviewDelegation', $ticket);
+
+            return redirect()
+                ->route('admin.tickets.show', $ticket)
+                ->with('error', 'La solicitud de delegación ya no existe o ya fue procesada.');
+        }
+
+        $this->authorize('reviewDelegation', $actualTicket);
+
+        if ($delegationRequest->status !== TicketDelegationRequest::STATUS_PENDING) {
+            return redirect()
+                ->route('admin.tickets.show', $actualTicket)
+                ->with('error', 'La solicitud de delegación ya fue procesada.');
+        }
+
+        $delegationRequest->update([
             'status' => TicketDelegationRequest::STATUS_REJECTED,
             'reviewed_by' => $request->user()->id,
             'reviewed_at' => now(),
         ]);
 
-        $this->logger->delegationRejected($ticket, $delegation->target, $request->user());
+        $this->logger->delegationRejected($actualTicket, $delegationRequest->target, $request->user());
 
-        return back()->with('success', 'Solicitud de delegación rechazada.');
+        return redirect()
+            ->route('admin.tickets.show', $actualTicket)
+            ->with('success', 'Solicitud de delegación rechazada.');
     }
 
     /** The requesting agent cancels their own pending request. */

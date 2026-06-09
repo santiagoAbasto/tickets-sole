@@ -123,6 +123,141 @@ class TicketDelegationTest extends TestCase
         $this->assertFalse($bruno->can('reply', $ticket->fresh()));
     }
 
+    public function test_opening_approve_url_with_get_does_not_approve_and_returns_to_ticket(): void
+    {
+        $bruno = $this->agent();
+        $rodrigo = $this->agent();
+        $super = $this->withRole('Super Admin');
+        $ticket = $this->ticketFor($bruno->id);
+        $delegation = $ticket->delegationRequests()->create([
+            'requested_by' => $bruno->id,
+            'requested_to' => $rodrigo->id,
+            'status' => 'pending',
+        ]);
+
+        $this->actingAs($super)
+            ->get(route('admin.tickets.delegations.review', [$ticket, $delegation]))
+            ->assertRedirect(route('admin.tickets.show', $ticket))
+            ->assertSessionHas('info');
+
+        $this->assertSame($bruno->id, $ticket->fresh()->assigned_to);
+        $this->assertSame('pending', $delegation->fresh()->status);
+    }
+
+    public function test_get_approve_url_for_delegation_from_another_ticket_redirects_to_real_ticket(): void
+    {
+        $bruno = $this->agent();
+        $rodrigo = $this->agent();
+        $super = $this->withRole('Super Admin');
+        $ticket = $this->ticketFor($bruno->id);
+        $otherTicket = $this->ticketFor($bruno->id);
+        $delegation = $otherTicket->delegationRequests()->create([
+            'requested_by' => $bruno->id,
+            'requested_to' => $rodrigo->id,
+            'status' => 'pending',
+        ]);
+
+        $this->actingAs($super)
+            ->get(route('admin.tickets.delegations.review', [$ticket, $delegation]))
+            ->assertRedirect(route('admin.tickets.show', $otherTicket))
+            ->assertSessionHas('info');
+    }
+
+    public function test_get_approve_url_for_missing_delegation_returns_to_ticket_with_error(): void
+    {
+        $bruno = $this->agent();
+        $super = $this->withRole('Super Admin');
+        $ticket = $this->ticketFor($bruno->id);
+
+        $this->actingAs($super)
+            ->get(route('admin.tickets.delegations.review', [$ticket, 999999]))
+            ->assertRedirect(route('admin.tickets.show', $ticket))
+            ->assertSessionHas('error');
+    }
+
+    public function test_get_approve_url_with_missing_ticket_but_existing_delegation_redirects_to_real_ticket(): void
+    {
+        $bruno = $this->agent();
+        $rodrigo = $this->agent();
+        $super = $this->withRole('Super Admin');
+        $ticket = $this->ticketFor($bruno->id);
+        $delegation = $ticket->delegationRequests()->create([
+            'requested_by' => $bruno->id,
+            'requested_to' => $rodrigo->id,
+            'status' => 'pending',
+        ]);
+
+        $this->actingAs($super)
+            ->get("/admin/tickets/999999/delegations/{$delegation->id}/approve")
+            ->assertRedirect(route('admin.tickets.show', $ticket))
+            ->assertSessionHas('info');
+    }
+
+    public function test_get_approve_url_with_missing_ticket_and_missing_delegation_redirects_to_dashboard(): void
+    {
+        $super = $this->withRole('Super Admin');
+
+        $this->actingAs($super)
+            ->get('/admin/tickets/999999/delegations/888888/approve')
+            ->assertRedirect(route('admin.tickets.dashboard'))
+            ->assertSessionHas('error');
+    }
+
+    public function test_post_approve_url_for_delegation_from_another_ticket_approves_the_real_ticket(): void
+    {
+        $bruno = $this->agent();
+        $rodrigo = $this->agent();
+        $super = $this->withRole('Super Admin');
+        $ticket = $this->ticketFor($bruno->id);
+        $otherTicket = $this->ticketFor($bruno->id);
+        $delegation = $otherTicket->delegationRequests()->create([
+            'requested_by' => $bruno->id,
+            'requested_to' => $rodrigo->id,
+            'status' => 'pending',
+        ]);
+
+        $this->actingAs($super)
+            ->post(route('admin.tickets.delegations.approve', [$ticket, $delegation]))
+            ->assertRedirect(route('admin.tickets.show', $otherTicket))
+            ->assertSessionHas('success');
+
+        $this->assertSame($rodrigo->id, $otherTicket->fresh()->assigned_to);
+        $this->assertSame('approved', $delegation->fresh()->status);
+    }
+
+    public function test_post_approve_url_for_missing_delegation_returns_to_ticket_with_error(): void
+    {
+        $bruno = $this->agent();
+        $super = $this->withRole('Super Admin');
+        $ticket = $this->ticketFor($bruno->id);
+
+        $this->actingAs($super)
+            ->post(route('admin.tickets.delegations.approve', [$ticket, 999999]))
+            ->assertRedirect(route('admin.tickets.show', $ticket))
+            ->assertSessionHas('error');
+    }
+
+    public function test_post_approve_url_for_processed_delegation_returns_to_ticket_with_error(): void
+    {
+        $bruno = $this->agent();
+        $rodrigo = $this->agent();
+        $super = $this->withRole('Super Admin');
+        $ticket = $this->ticketFor($bruno->id);
+        $delegation = $ticket->delegationRequests()->create([
+            'requested_by' => $bruno->id,
+            'requested_to' => $rodrigo->id,
+            'status' => 'rejected',
+        ]);
+
+        $this->actingAs($super)
+            ->post(route('admin.tickets.delegations.approve', [$ticket, $delegation]))
+            ->assertRedirect(route('admin.tickets.show', $ticket))
+            ->assertSessionHas('error');
+
+        $this->assertSame($bruno->id, $ticket->fresh()->assigned_to);
+        $this->assertSame('rejected', $delegation->fresh()->status);
+    }
+
     public function test_non_assignee_agent_cannot_request_delegation(): void
     {
         $bruno = $this->agent();
