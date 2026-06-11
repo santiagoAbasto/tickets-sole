@@ -54,6 +54,7 @@ class TicketController extends Controller
                 'customer:id,name,email,avatar_path',
                 'assignee:id,name,avatar_path',
                 'priority', 'status', 'category:id,name,slug,color',
+                'latestStatusChange',
             ]);
 
         $this->applyVisibility($query, $request->user());
@@ -358,6 +359,20 @@ class TicketController extends Controller
 
     private function transform(Ticket $t): array
     {
+        $lastStatusChangeAt = $t->latestStatusChange?->created_at;
+        $lastStatusChangeLabel = null;
+
+        if ($t->latestStatusChange) {
+            $to = data_get($t->latestStatusChange->meta, 'to');
+            $lastStatusChangeLabel = $to ? "a {$to}" : $t->latestStatusChange->description;
+        } elseif ($t->closed_at && (! $t->resolved_at || $t->closed_at->greaterThan($t->resolved_at))) {
+            $lastStatusChangeAt = $t->closed_at;
+            $lastStatusChangeLabel = 'Cerrado';
+        } elseif ($t->resolved_at) {
+            $lastStatusChangeAt = $t->resolved_at;
+            $lastStatusChangeLabel = 'Resuelto';
+        }
+
         return [
             'id' => $t->id,
             'code' => $t->code,
@@ -376,6 +391,8 @@ class TicketController extends Controller
             'overdue_human' => $t->overdueForHumans(),
             'due_at' => $t->due_at?->toIso8601String(),
             'created_at' => $t->created_at?->toIso8601String(),
+            'last_status_change_at' => $lastStatusChangeAt?->toIso8601String(),
+            'last_status_change_label' => $lastStatusChangeLabel,
         ];
     }
 

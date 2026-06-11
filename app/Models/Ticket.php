@@ -136,6 +136,13 @@ class Ticket extends Model
         return $this->hasMany(TicketActivityLog::class)->latest();
     }
 
+    public function latestStatusChange(): HasOne
+    {
+        return $this->hasOne(TicketActivityLog::class)
+            ->where('ticket_activity_logs.action', 'status_changed')
+            ->latestOfMany();
+    }
+
     public function assignments(): HasMany
     {
         return $this->hasMany(TicketAssignment::class);

@@ -74,11 +74,11 @@
             @else
                 {{-- Desktop --}}
                 <div class="hidden overflow-x-auto md:block">
-                    <table class="w-full text-sm">
+                    <table class="w-full min-w-[76rem] text-sm">
                         <thead>
                             <tr class="border-b border-slate-200 text-left text-xs font-semibold uppercase tracking-wide text-slate-400">
                                 <th class="px-5 py-3">Código</th><th class="px-3 py-3">Asunto</th><th class="px-3 py-3">Estado</th>
-                                <th class="px-3 py-3">Prioridad</th><th class="px-3 py-3">Agente</th><th class="px-3 py-3">Creado</th><th class="px-5 py-3 text-right">Vence</th>
+                                <th class="px-3 py-3">Prioridad</th><th class="px-3 py-3">Agente</th><th class="px-3 py-3">Último cambio de estado</th><th class="px-3 py-3">Creado</th><th class="px-5 py-3 text-right">Vence</th>
                                 @can('tickets.delete')<th class="px-3 py-3"><span class="sr-only">Acciones</span></th>@endcan
                             </tr>
                         </thead>
@@ -96,6 +96,17 @@
                                     <td class="whitespace-nowrap px-3 py-3">
                                         @if (data_get($t, 'agent'))<span class="flex items-center gap-2"><x-avatar :name="data_get($t,'agent.name')" :src="data_get($t,'agent.avatar_url')" size="xs" /><span class="text-slate-600">{{ data_get($t,'agent.name') }}</span></span>
                                         @else<span class="text-xs text-slate-400">Sin asignar</span>@endif
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-3">
+                                        @if ($t['last_status_change_at'])
+                                            @php $statusChangedAt = Carbon::parse($t['last_status_change_at']); @endphp
+                                            <span class="block text-slate-600" title="{{ $statusChangedAt->format('d/m/Y H:i') }}">{{ $statusChangedAt->diffForHumans() }}</span>
+                                            @if ($t['last_status_change_label'])
+                                                <span class="block max-w-[10rem] truncate text-xs text-slate-400">{{ $t['last_status_change_label'] }}</span>
+                                            @endif
+                                        @else
+                                            <span class="text-xs text-slate-400">Sin cambios</span>
+                                        @endif
                                     </td>
                                     <td class="whitespace-nowrap px-3 py-3 text-slate-500">{{ $t['created_at'] ? Carbon::parse($t['created_at'])->diffForHumans() : '—' }}</td>
                                     <td class="whitespace-nowrap px-5 py-3 text-right">
@@ -127,6 +138,18 @@
                                 <p class="mt-1 truncate font-medium text-slate-800">{{ $t['subject'] }}</p>
                                 <p class="truncate text-xs text-slate-500">{{ data_get($t, 'customer.name') }}</p>
                                 <div class="mt-2 flex flex-wrap items-center gap-2"><x-status-badge :status="$t['status']" /><x-priority-badge :priority="$t['priority']" /></div>
+                                <p class="mt-2 text-xs text-slate-500">
+                                    Último cambio de estado:
+                                    @if ($t['last_status_change_at'])
+                                        @php $statusChangedAt = Carbon::parse($t['last_status_change_at']); @endphp
+                                        <span title="{{ $statusChangedAt->format('d/m/Y H:i') }}">{{ $statusChangedAt->diffForHumans() }}</span>
+                                        @if ($t['last_status_change_label'])
+                                            <span class="text-slate-400">({{ $t['last_status_change_label'] }})</span>
+                                        @endif
+                                    @else
+                                        <span class="text-slate-400">sin cambios</span>
+                                    @endif
+                                </p>
                             </a>
                             @can('tickets.delete')
                                 <form method="POST" action="{{ route('admin.tickets.destroy', $t['id']) }}" onsubmit="return confirm('¿Eliminar el ticket {{ $t['code'] }}? Se quita de la lista.')" class="flex items-center px-3">

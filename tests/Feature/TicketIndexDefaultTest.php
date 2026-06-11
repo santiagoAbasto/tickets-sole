@@ -68,4 +68,26 @@ class TicketIndexDefaultTest extends TestCase
             ->assertSee($mine->code)
             ->assertSee($other->code);
     }
+
+    public function test_index_shows_last_status_change_column(): void
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('Admin');
+
+        $ticket = $this->ticket('OSL-STATUS-1', $admin->id);
+        $ticket->activityLogs()->create([
+            'user_id' => $admin->id,
+            'action' => 'status_changed',
+            'description' => 'Estado: Abierto → Resuelto',
+            'meta' => ['from' => 'Abierto', 'to' => 'Resuelto'],
+            'created_at' => now()->subHours(3),
+            'updated_at' => now()->subHours(3),
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.tickets.index'))
+            ->assertOk()
+            ->assertSee('Último cambio de estado')
+            ->assertSee('a Resuelto');
+    }
 }
