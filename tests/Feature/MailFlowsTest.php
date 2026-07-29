@@ -9,6 +9,8 @@ use App\Models\TicketPriority;
 use App\Models\TicketStatus;
 use App\Models\User;
 use App\Notifications\CustomerTicketCreatedNotification;
+use App\Notifications\TicketCreatedNotification;
+use App\Services\TicketNotificationService;
 use Database\Seeders\RolePermissionSeeder;
 use Database\Seeders\TicketCategorySeeder;
 use Database\Seeders\TicketPrioritySeeder;
@@ -72,5 +74,43 @@ class MailFlowsTest extends TestCase
             fn ($notification, $channels, $notifiable) => in_array('mail', $channels)
                 && ($notifiable->routes['mail'] ?? null) === 'cliente@example.com',
         );
+    }
+
+    public function test_ticket_created_sends_internal_copy_emails(): void
+    {
+        Notification::fake();
+        config(['tickets.created_copy_emails' => ['aleradatsi@gmail.com', 'osole2017@gmail.com']]);
+
+        $this->seed([
+            RolePermissionSeeder::class,
+            TicketStatusSeeder::class,
+            TicketPrioritySeeder::class,
+            TicketCategorySeeder::class,
+        ]);
+
+        $agent = User::factory()->create();
+        $agent->assignRole('Agente');
+
+        $customer = Customer::create(['name' => 'Cliente', 'email' => 'cliente@example.com', 'is_active' => true]);
+        $ticket = Ticket::create([
+            'code' => 'OSL-COPY-1',
+            'customer_id' => $customer->id,
+            'category_id' => TicketCategory::query()->value('id'),
+            'priority_id' => TicketPriority::query()->value('id'),
+            'status_id' => TicketStatus::query()->value('id'),
+            'assigned_to' => $agent->id,
+            'subject' => 'Sitio caído',
+            'description' => 'No responde el sitio principal.',
+        ]);
+
+        app(TicketNotificationService::class)->ticketCreated($ticket);
+
+        foreach (['aleradatsi@gmail.com', 'osole2017@gmail.com'] as $email) {
+            Notification::assertSentOnDemand(
+                TicketCreatedNotification::class,
+                fn ($notification, $channels, $notifiable) => in_array('mail', $channels)
+                    && ($notifiable->routes['mail'] ?? null) === $email,
+            );
+        }
     }
 }

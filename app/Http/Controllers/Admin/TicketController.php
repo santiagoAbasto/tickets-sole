@@ -20,6 +20,7 @@ use App\Models\User;
 use App\Services\TicketActivityLoggerService;
 use App\Services\TicketCodeGeneratorService;
 use App\Services\TicketNotificationService;
+use App\Services\TelegramNotifier;
 use App\Services\WhatsappTemplateService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -271,6 +272,7 @@ class TicketController extends Controller
     {
         $status = TicketStatus::findOrFail($request->validated()['status_id']);
         $from = $ticket->status->name;
+        $changed = $ticket->status_id !== $status->id;
 
         DB::transaction(function () use ($ticket, $status, $from, $request) {
             $ticket->status_id = $status->id;
@@ -298,6 +300,9 @@ class TicketController extends Controller
         });
 
         $this->notifier->statusChanged($ticket, $status->name);
+        if ($changed && ($status->is_resolved || $status->is_final)) {
+            defer(fn () => app(TelegramNotifier::class)->ticketResolvedOrClosed($ticket->fresh(), $status->name));
+        }
         TicketUpdated::dispatch($ticket);
 
         return back()->with('success', "Estado actualizado a {$status->name}.");

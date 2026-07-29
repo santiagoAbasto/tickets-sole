@@ -32,13 +32,21 @@ class TicketCreatedNotification extends Notification implements ShouldQueue
 
     public function toMail(object $notifiable): MailMessage
     {
-        return (new MailMessage)
+        $this->ticket->loadMissing('customer', 'category', 'priority', 'status', 'assignee');
+
+        $message = (new MailMessage)
             ->subject("[{$this->ticket->code}] Nuevo ticket: {$this->ticket->subject}")
-            ->greeting('Nuevo ticket recibido')
-            ->line("Se creó el ticket {$this->ticket->code}.")
-            ->line("Asunto: {$this->ticket->subject}")
-            ->action('Ver ticket', route('admin.tickets.show', $this->ticket))
-            ->line('Gracias por usar la mesa de ayuda de Osole.');
+            ->view('emails.ticket-created', [
+                'ticket' => $this->ticket,
+                'ticketUrl' => route('admin.tickets.show', $this->ticket),
+                'logoUrl' => asset('favicon/web-app-manifest-192x192.png'),
+            ]);
+
+        if ($this->ticket->customer?->email) {
+            $message->replyTo($this->ticket->customer->email, $this->ticket->customer->name);
+        }
+
+        return $message;
     }
 
     /**

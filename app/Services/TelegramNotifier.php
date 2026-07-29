@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * Outgoing ticket alerts via the Telegram Bot API. Notify-only: it pushes a
- * short "new ticket" message to every configured chat. No inbound, no reply.
+ * short ticket lifecycle messages to every configured chat. No inbound, no reply.
  *
  * Config lives in site_settings (manageable from /admin/telegram-alerts):
  *   - telegram_alerts_enabled    '1' | '0'
@@ -47,6 +47,16 @@ class TelegramNotifier
     /** Fire a "new ticket" message to every configured chat. */
     public function ticketCreated(Ticket $ticket): void
     {
+        $this->sendToRecipients($this->ticketCreatedMessage($ticket));
+    }
+
+    public function ticketResolvedOrClosed(Ticket $ticket, string $statusName): void
+    {
+        $this->sendToRecipients($this->ticketStatusMessage($ticket, $statusName));
+    }
+
+    private function sendToRecipients(string $text): void
+    {
         if (! $this->enabled()) {
             return;
         }
@@ -62,8 +72,6 @@ class TelegramNotifier
         if ($recipients === []) {
             return;
         }
-
-        $text = $this->ticketMessage($ticket);
 
         foreach ($recipients as $r) {
             $chatId = trim((string) ($r['chat_id'] ?? ''));
@@ -148,7 +156,7 @@ class TelegramNotifier
         }
     }
 
-    private function ticketMessage(Ticket $ticket): string
+    private function ticketCreatedMessage(Ticket $ticket): string
     {
         $ticket->loadMissing(['priority', 'customer']);
 
@@ -157,6 +165,21 @@ class TelegramNotifier
             $ticket->subject,
             $ticket->customer?->name ? "Cliente: {$ticket->customer->name}" : null,
             $ticket->priority?->name ? "Prioridad: {$ticket->priority->name}" : null,
+            rtrim((string) config('app.url'), '/')."/admin/tickets/{$ticket->id}",
+        ]);
+
+        return implode("\n", $lines);
+    }
+
+    private function ticketStatusMessage(Ticket $ticket, string $statusName): string
+    {
+        $ticket->loadMissing(['customer', 'assignee']);
+
+        $lines = array_filter([
+            "Ticket {$statusName} {$ticket->code}",
+            $ticket->subject,
+            $ticket->customer?->name ? "Cliente: {$ticket->customer->name}" : null,
+            $ticket->assignee?->name ? "Agente: {$ticket->assignee->name}" : null,
             rtrim((string) config('app.url'), '/')."/admin/tickets/{$ticket->id}",
         ]);
 

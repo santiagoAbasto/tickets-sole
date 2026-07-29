@@ -31,6 +31,10 @@ class TicketNotificationService
             $this->safely(fn () => $user->notify(new TicketCreatedNotification($ticket, email: $user->id === $primaryId)));
         }
 
+        foreach ($this->ticketCreatedCopyEmails() as $email) {
+            $this->safely(fn () => Notification::route('mail', $email)->notify(new TicketCreatedNotification($ticket)));
+        }
+
         // Telegram ping — deferred so a slow/unreachable bot never delays ticket
         // creation. No-op unless configured + enabled.
         defer(fn () => $this->telegram->ticketCreated($ticket));
@@ -121,6 +125,18 @@ class TicketNotificationService
         }
 
         $this->safely(fn () => Notification::route('mail', $email)->notify($notification));
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function ticketCreatedCopyEmails(): array
+    {
+        return collect(config('tickets.created_copy_emails', []))
+            ->filter(fn ($email) => is_string($email) && filter_var($email, FILTER_VALIDATE_EMAIL))
+            ->unique()
+            ->values()
+            ->all();
     }
 
     /**

@@ -190,4 +190,52 @@ class TelegramAlertTest extends TestCase
 
         $this->assertDatabaseHas('tickets', ['subject' => 'Nuevo con aviso']);
     }
+
+    public function test_sends_telegram_alert_when_ticket_is_resolved(): void
+    {
+        Http::fake(['api.telegram.org/*' => Http::response(['ok' => true], 200)]);
+        $this->enableAlerts('TESTTOKEN', [['name' => 'Pablo', 'chat_id' => '111']]);
+
+        $ticket = $this->makeTicket();
+        $resolved = TicketStatus::where('slug', 'resuelto')->firstOrFail();
+
+        $this->actingAs($this->staff('Admin'))
+            ->post(route('admin.tickets.status', $ticket), ['status_id' => $resolved->id])
+            ->assertRedirect();
+
+        Http::assertSent(fn ($r) => str_contains($r->url(), '/botTESTTOKEN/sendMessage')
+            && $r['chat_id'] === '111'
+            && str_contains($r['text'], "Ticket Resuelto {$ticket->code}"));
+    }
+
+    public function test_sends_telegram_alert_when_ticket_is_closed(): void
+    {
+        Http::fake(['api.telegram.org/*' => Http::response(['ok' => true], 200)]);
+        $this->enableAlerts('TESTTOKEN', [['name' => 'Pablo', 'chat_id' => '111']]);
+
+        $ticket = $this->makeTicket();
+        $closed = TicketStatus::where('slug', 'cerrado')->firstOrFail();
+
+        $this->actingAs($this->staff('Admin'))
+            ->post(route('admin.tickets.status', $ticket), ['status_id' => $closed->id])
+            ->assertRedirect();
+
+        Http::assertSent(fn ($r) => $r['chat_id'] === '111'
+            && str_contains($r['text'], "Ticket Cerrado {$ticket->code}"));
+    }
+
+    public function test_does_not_send_telegram_alert_for_intermediate_status_change(): void
+    {
+        Http::fake(['api.telegram.org/*' => Http::response(['ok' => true], 200)]);
+        $this->enableAlerts('TESTTOKEN', [['name' => 'Pablo', 'chat_id' => '111']]);
+
+        $ticket = $this->makeTicket();
+        $inProcess = TicketStatus::where('slug', 'en-proceso')->firstOrFail();
+
+        $this->actingAs($this->staff('Admin'))
+            ->post(route('admin.tickets.status', $ticket), ['status_id' => $inProcess->id])
+            ->assertRedirect();
+
+        Http::assertNothingSent();
+    }
 }
